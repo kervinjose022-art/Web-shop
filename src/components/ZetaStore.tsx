@@ -17,7 +17,6 @@ import {
 import { Product, CartItem, Order, Currency, Coupon, CustomerUser, StoreCategory, BannerConfig } from '../types/store';
 import { INITIAL_PRODUCTS, STORE_CATEGORIES } from '../data/initialProducts';
 import { ZetaHeader } from './ZetaHeader';
-import { ZetaBanner } from './ZetaBanner';
 import { ZetaProductCard } from './ZetaProductCard';
 import { ZetaProductModal } from './ZetaProductModal';
 import { ZetaCartDrawer } from './ZetaCartDrawer';
@@ -127,7 +126,7 @@ export const ZetaStore: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [adminInitialTab, setAdminInitialTab] = useState<AdminTab>('banner70');
+  const [adminInitialTab, setAdminInitialTab] = useState<AdminTab>('productos');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
@@ -308,6 +307,9 @@ export const ZetaStore: React.FC = () => {
       result.sort((a, b) => b.soldCount - a.soldCount);
     } else if (sortBy === 'rating') {
       result.sort((a, b) => b.rating - a.rating);
+    } else {
+      // 'destacados': Admin-featured products appear first at the top
+      result.sort((a, b) => (b.isFeaturedInBanner ? 1 : 0) - (a.isFeaturedInBanner ? 1 : 0));
     }
 
     return result;
@@ -336,44 +338,21 @@ export const ZetaStore: React.FC = () => {
         wishlistCount={wishlist.length}
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenAdmin={() => {
-          setAdminInitialTab('banner70');
+          setAdminInitialTab('productos');
           setIsAdminOpen(true);
         }}
         currentUser={currentUser}
         onOpenAuth={() => setIsAuthOpen(true)}
       />
 
-      {/* Hero Promotional Banner with Flash Timer and Catalog Showcase */}
-      <ZetaBanner 
-        products={products}
-        categories={categories}
-        bannerConfig={bannerConfig}
-        currency={currency}
-        isAdmin={currentUser?.role === 'admin'}
-        onOpenBannerAdmin={() => {
-          setAdminInitialTab('banner70');
-          setIsAdminOpen(true);
-        }}
-        onSelectProduct={(product) => setActiveProductModal(product)}
-        onAddToCart={(product) => handleAddToCart(product, 1)}
-        onExploreDeals={() => {
-          setSelectedCategory('all');
-          setFilterOnlyFlash(true);
-        }}
-        onExploreWholesale={() => {
-          setIsWholesaleMode(true);
-          setSelectedCategory('all');
-        }}
-      />
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full space-y-6">
+      {/* Main Content Area - Products Start Directly Here */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full space-y-4">
         
         {/* Quick Search Chips & Search bar helper */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-          <span className="text-[11px] font-bold text-slate-400 shrink-0 mr-1">Búsqueda rápida:</span>
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          <span className="text-[11px] font-bold text-slate-400 shrink-0 mr-1">Rápido:</span>
           {[
-            { label: '🔥 Ofertas', query: '', filterFlash: true },
+            { label: '🧱 Bloques', query: 'bloque' },
             { label: '👟 Zapatillas', query: 'sneaker' },
             { label: '⌚ Relojes', query: 'reloj' },
             { label: '📱 Smartwatch', query: 'smartwatch' },
@@ -381,7 +360,8 @@ export const ZetaStore: React.FC = () => {
             { label: '👗 Vestidos', query: 'vestido' },
             { label: '🧥 Chaquetas', query: 'chaqueta' },
             { label: '💎 Joyas', query: 'joya' },
-            { label: '🍳 Freidora', query: 'freidora' }
+            { label: '🍳 Freidora', query: 'freidora' },
+            { label: '🔥 Ofertas', query: '', filterFlash: true }
           ].map((tag) => (
             <button
               key={tag.label}
@@ -432,6 +412,19 @@ export const ZetaStore: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {/* Admin Quick Shortcut if logged in as admin */}
+            {currentUser?.role === 'admin' && (
+              <button
+                onClick={() => {
+                  setAdminInitialTab('productos');
+                  setIsAdminOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all flex items-center gap-1 cursor-pointer shadow-md"
+              >
+                <span>+ Subir Producto / Catálogo</span>
+              </button>
+            )}
+
             {/* Flash Deal Filter Toggle */}
             <button
               onClick={() => setFilterOnlyFlash(!filterOnlyFlash)}

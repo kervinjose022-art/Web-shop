@@ -181,16 +181,11 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
     }
 
     const priceNum = parseFloat(newPrice) || 10;
-    let origNum = parseFloat(newOriginalPrice);
-
-    // If 70% discount is selected and original price is empty or lower, calculate a 70% off original price
-    if (showIn70Discount && (!origNum || origNum <= priceNum)) {
-      origNum = Math.round((priceNum / 0.30) * 100) / 100;
-    } else if (!origNum) {
-      origNum = priceNum * 1.5;
-    }
-
-    const computedDiscount = Math.max(0, Math.round(((origNum - priceNum) / origNum) * 100));
+    const parsedOrig = parseFloat(newOriginalPrice);
+    const origNum = parsedOrig && parsedOrig > priceNum ? parsedOrig : priceNum;
+    const computedDiscount = origNum > priceNum
+      ? Math.max(0, Math.round(((origNum - priceNum) / origNum) * 100))
+      : 0;
 
     // Resolve final category: if custom was chosen, register it as a store catalog too
     let resolvedCategory = newCategory;
@@ -220,7 +215,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
       subtitle: newSubtitle.trim() || 'Mercancía verificada en catálogo',
       price: priceNum,
       originalPrice: origNum,
-      discountPct: showIn70Discount ? Math.max(70, computedDiscount) : computedDiscount,
+      discountPct: computedDiscount,
       rating: 5.0,
       reviewCount: 1,
       category: resolvedCategory,
@@ -229,7 +224,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
       stock: parseInt(newStock) || 20,
       soldCount: 0,
       isNew: true,
-      isFlashDeal: showIn70Discount,
+      isFlashDeal: computedDiscount > 0,
       isFeaturedInBanner: showIn70Discount,
       description: 'Producto de alta calidad verificado por ZetaMall con despacho y garantía.',
       features: ['Garantía de calidad oficial', 'Envío rápido asegurado por WhatsApp']
@@ -241,7 +236,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
     setCustomCategoryName('');
     setUploadedImages([]);
     setExternalImageUrl('');
-    alert(`¡Mercancía "${product.name}" agregada con éxito al catálogo ${showIn70Discount ? 'y a la sección de 70% de Descuento' : ''}!`);
+    alert(`¡Mercancía "${product.name}" publicada en la tienda con éxito!`);
   };
 
   const handleCreateQuickCatalog = (e: React.FormEvent) => {
@@ -370,20 +365,20 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
             {/* Navigation Tabs */}
             <div className="bg-[#080d19] border-b border-slate-800 px-5 flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar">
               <button
-                onClick={() => setActiveTab('banner70')}
-                className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
-                  activeTab === 'banner70' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
-                }`}
-              >
-                🔥 Catálogo 70%
-              </button>
-              <button
                 onClick={() => setActiveTab('productos')}
                 className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
                   activeTab === 'productos' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
                 }`}
               >
                 📦 Productos ({products.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('banner70')}
+                className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
+                  activeTab === 'banner70' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                📁 Catálogos
               </button>
               <button
                 onClick={() => setActiveTab('resumen')}
@@ -414,91 +409,20 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
             {/* Tab Content */}
             <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
 
-              {/* TAB 0: CONFIGURAR CATÁLOGO EN ZONA 70% DESCUENTO */}
+              {/* TAB: GESTIÓN DE CATÁLOGOS Y PRODUCTOS DESTACADOS */}
               {activeTab === 'banner70' && (
                 <div className="space-y-6">
-                  {/* Banner Headline & Main Featured Catalog Picker */}
-                  <div className="bg-[#080d19] border border-emerald-500/30 rounded-2xl p-4 sm:p-5 space-y-4">
-                    <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
-                      <div className="flex items-center gap-2 font-bold text-sm text-white">
-                        <Flame className="w-4 h-4 text-emerald-400" />
-                        <span>Configurar Sección "70% de Descuento en Catálogo"</span>
-                      </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30">
-                        Vista Principal
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <label className="text-slate-400 block mb-1 font-bold">
-                          Catálogo Principal donde dice "Hasta 70% de Descuento en..."
-                        </label>
-                        <select
-                          value={bannerConfig.featuredCategoryId}
-                          onChange={(e) => onUpdateBannerConfig({ ...bannerConfig, featuredCategoryId: e.target.value })}
-                          className="w-full bg-[#0b1324] border border-emerald-500/40 rounded-xl p-2.5 text-white outline-none cursor-pointer font-bold"
-                        >
-                          <option value="all">🌟 Todos los Catálogos ("en Catálogo")</option>
-                          {categories.filter(c => c.id !== 'all').map(cat => (
-                            <option key={cat.id} value={cat.id}>
-                              📁 {cat.name}
-                            </option>
-                          ))}
-                        </select>
-                        <p className="text-[10px] text-slate-500 mt-1">
-                          El catálogo que elijas aquí se abrirá primero apenas el cliente entre a la tienda.
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="text-slate-400 block mb-1 font-bold">Texto de Descuento en el Banner</label>
-                        <input
-                          type="text"
-                          value={bannerConfig.discountText}
-                          onChange={(e) => onUpdateBannerConfig({ ...bannerConfig, discountText: e.target.value })}
-                          placeholder="70% de Descuento"
-                          className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-emerald-400 font-bold outline-none focus:border-emerald-500"
-                        />
-                        <p className="text-[10px] text-slate-500 mt-1">
-                          Ej: "70% de Descuento", "50% de Descuento", "Precios de Fábrica".
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <label className="text-slate-400 block mb-1 font-bold">Etiqueta Superior</label>
-                        <input
-                          type="text"
-                          value={bannerConfig.badgeText}
-                          onChange={(e) => onUpdateBannerConfig({ ...bannerConfig, badgeText: e.target.value })}
-                          className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1 font-bold">Descripción Breve</label>
-                        <input
-                          type="text"
-                          value={bannerConfig.subtitleText}
-                          onChange={(e) => onUpdateBannerConfig({ ...bannerConfig, subtitleText: e.target.value })}
-                          className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Catalog Visibility & Create New Catalog */}
                   <div className="bg-[#080d19] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                       <div className="flex items-center gap-2 font-bold text-sm text-white">
                         <Layers className="w-4 h-4 text-emerald-400" />
-                        <span>Catálogos Activos en la Zona de 70% Descuento</span>
+                        <span>Catálogos de la Tienda</span>
                       </div>
                     </div>
 
                     <p className="text-xs text-slate-400">
-                      Toca cualquier catálogo para activarlo o desactivarlo en la barra de ofertas del 70%, o crea un catálogo nuevo:
+                      Crea nuevos catálogos o selecciona cuál catálogo quieres que se abra primero en la tienda:
                     </p>
 
                     <div className="flex flex-wrap gap-2">
@@ -542,12 +466,12 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                     </form>
                   </div>
 
-                  {/* Select Which Products Go in the 70% Discount Banner */}
+                  {/* Select Which Products Appear First */}
                   <div className="bg-[#080d19] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
                       <div className="flex items-center gap-2 font-bold text-sm text-white">
                         <Sparkles className="w-4 h-4 text-amber-400" />
-                        <span>Elegir Productos en "70% de Descuento"</span>
+                        <span>Elegir Productos Destacados (Aparecen Primero)</span>
                       </div>
                       <input
                         type="text"
@@ -585,7 +509,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                                     : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                                 }`}
                               >
-                                {isInBanner ? '🔥 En 70%' : '+ Poner en 70%'}
+                                {isInBanner ? '⭐ Destacado' : '+ Destacar'}
                               </button>
                             </div>
                           );
@@ -758,7 +682,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                         </div>
                       )}
 
-                      {/* 70% Discount Banner Placement Checkbox */}
+                      {/* Featured Placement Checkbox */}
                       <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
                         <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-white">
                           <input 
@@ -768,12 +692,12 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                             className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
                           />
                           <span className="flex items-center gap-1.5">
-                            <Flame className="w-4 h-4 text-emerald-400" />
-                            <span>Mostrar en "Hasta 70% de Descuento en Catálogo" (Banner Principal de la Tienda)</span>
+                            <Sparkles className="w-4 h-4 text-emerald-400" />
+                            <span>Destacar este producto al inicio de la tienda</span>
                           </span>
                         </label>
                         <p className="text-[11px] text-slate-400 pl-6">
-                          Al marcar esta casilla, el producto aparecerá inmediatamente en el carrusel de ofertas destacadas al inicio de la página.
+                          Al marcar esta casilla, el producto aparecerá entre los primeros lugares del catálogo principal.
                         </p>
                       </div>
 
@@ -888,9 +812,9 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                                     ? 'bg-emerald-500 text-slate-950'
                                     : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                                 }`}
-                                title="Activar o quitar de la sección 70% de Descuento"
+                                title="Destacar producto al principio de la tienda"
                               >
-                                {isInBanner ? '🔥 En 70%' : '+ 70%'}
+                                {isInBanner ? '⭐ Destacado' : '+ Destacar'}
                               </button>
                               <button
                                 onClick={() => {

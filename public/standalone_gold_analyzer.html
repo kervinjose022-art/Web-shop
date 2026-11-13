@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analizador de Oro - Análisis Técnico del Oro</title>
+  <meta name="description" content="Plataforma profesional de análisis técnico del Oro (XAU/USD), cotización en vivo y suscripciones.">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            gold: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #070c14;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+    }
+    .gold-gradient {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #d97706 100%);
+    }
+    .gold-btn {
+      background-color: #facc15;
+      color: #020617;
+      font-weight: 900;
+      transition: all 0.2s ease;
+    }
+    .gold-btn:hover {
+      background-color: #eab308;
+      filter: brightness(1.05);
+    }
+    .gold-btn:active {
+      transform: scale(0.98);
+    }
+    .card-dark {
+      background: #0d1628;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .inpt {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      color: #f8fafc;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .inpt:focus {
+      border-color: #facc15;
+      box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.2);
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070c14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="selection:bg-amber-500 selection:text-slate-950 pb-16">
+
+  <!-- 7 PUNTOS VERDES EN EL LATERAL IZQUIERDO (como en el vídeo) -->
+  <div class="fixed left-3 top-1/3 z-30 hidden lg:flex flex-col gap-2.5 pointer-events-none">
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50 animate-pulse"></span>
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50 animate-pulse" style="animation-delay: 200ms;"></span>
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50 animate-pulse" style="animation-delay: 400ms;"></span>
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50 animate-pulse" style="animation-delay: 600ms;"></span>
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50 animate-pulse" style="animation-delay: 800ms;"></span>
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50 animate-pulse" style="animation-delay: 1000ms;"></span>
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50 animate-pulse" style="animation-delay: 1200ms;"></span>
+  </div>
+
+  <!-- AVISO TOAST FLOTANTE -->
+  <div id="toast-banner" class="hidden bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-slate-950 px-4 py-3 font-black text-xs sm:text-sm text-center shadow-2xl items-center justify-center gap-2 relative">
+    <i class="fa-solid fa-sparkles"></i>
+    <span id="toast-text">¡Suscripción registrada con éxito! Tu acceso se activará tras verificar la transferencia.</span>
+    <button onclick="cerrarToast()" class="ml-3 bg-black/20 hover:bg-black/40 text-black px-2 py-0.5 rounded-full text-xs font-bold transition-all">✕</button>
+  </div>
+
+  <!-- CABECERA PRINCIPAL (NAVBAR) -->
+  <header class="sticky top-0 z-40 bg-[#070c14]/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+      <!-- Logo + Título -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-400 to-yellow-300 p-0.5 shadow-lg shadow-amber-500/30 flex items-center justify-center shrink-0">
+          <div class="w-full h-full bg-[#0b1220] rounded-[10px] flex items-center justify-center text-amber-400 font-black text-base">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-base sm:text-xl font-black tracking-tight text-white uppercase">
+              GOLD ANALYZER
+            </span>
+            <span class="hidden sm:inline-block text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider font-mono">
+              GitHub • Vercel • Firebase ⚡
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-medium">
+            Análisis técnico del oro • Indicador
+          </p>
+        </div>
+      </div>
+
+      <!-- Badge Central Precio en Vivo -->
+      <div class="hidden md:flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3.5 py-1.5 rounded-full shadow-inner">
+        <span class="relative flex h-2.5 w-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        </span>
+        <span class="text-xs font-bold text-slate-300 tracking-wide">
+          PRECIO EN VIVO • MERCADO REAL XAU/USD
+        </span>
+      </div>
+
+      <!-- Botones de Usuario / Suscriptores -->
+      <div class="flex items-center gap-2">
+        <button onclick="abrirAdminModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow">
+          <i class="fa-solid fa-users text-amber-400"></i>
+          <span class="hidden sm:inline">Suscriptores</span>
+          <span id="sub-counter" class="bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded-full text-[10px] font-black">0</span>
+        </button>
+
+        <div id="auth-guest" class="flex items-center gap-1.5 text-xs">
+          <button onclick="abrirAuthModal('login')" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 font-bold px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer">
+            Ingresar
+          </button>
+          <button onclick="abrirAuthModal('register')" class="gold-gradient text-zinc-950 font-black px-2.5 py-1.5 rounded-lg text-xs shadow hover:brightness-110 active:scale-95 transition-all cursor-pointer">
+            Crear Cuenta
+          </button>
+        </div>
+
+        <div id="auth-logged" class="hidden items-center gap-1.5">
+          <span class="inline-flex items-center gap-1 bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-xl text-xs font-bold">
+            <i class="fa-solid fa-user-check text-emerald-400"></i>
+            <span id="logged-username">Usuario</span>
+          </span>
+          <button onclick="cerrarSesion()" class="bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-red-400 px-2 py-1.5 rounded-lg text-xs border border-slate-800" title="Cerrar Sesión">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-6xl mx-auto px-4 pt-6 space-y-6 w-full">
+
+    <!-- 1. CAJA DE COTIZACIÓN SPOT EN TIEMPO REAL -->
+    <section class="bg-gradient-to-b from-[#0b1220] to-[#070d19] border border-slate-800 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">
+              XAUUSD • ORO / DÓLAR ESTADOUNIDENSE
+            </span>
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded font-black flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              PRECIO ORIGINAL EN VIVO
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-baseline gap-3">
+            <h1 id="live-price" class="text-3xl sm:text-4xl md:text-5xl font-black text-white font-mono tracking-tight drop-shadow-md">
+              $3,892.38
+            </h1>
+            <span class="text-sm sm:text-base font-bold text-red-400 font-mono flex items-center">
+              ▼ -2.66% (24h)
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-mono text-slate-400 pt-1">
+            <span>24h Máx: <strong class="text-slate-200">$3,942.63</strong></span>
+            <span>•</span>
+            <span>24h Mín: <strong class="text-slate-200">$3,849.13</strong></span>
+            <span>•</span>
+            <span>Spread: <strong class="text-amber-400">0.08 USD</strong></span>
+          </div>
+        </div>
+
+        <div class="text-right space-y-1 bg-slate-950/70 p-3 rounded-xl border border-slate-800/80">
+          <span class="text-xs font-bold text-slate-300 block">
+            Cotización Original de Mercado XAU/USD
+          </span>
+          <span class="text-[11px] text-slate-400 block">
+            Fuente: Mercado Spot Internacional (Coinbase/LBMA)
+          </span>
+          <span id="live-clock" class="text-[11px] text-amber-400 font-mono block font-bold">
+            Actualización: 10:29:34
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. CUADRÍCULA 2X2 DE LOS 4 PLANES VIP EN USDT -->
+    <section class="space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- PLAN INICIAL -->
+        <div class="card-dark rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xl transition-all hover:border-amber-500/50 relative">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-black text-white tracking-wide">PLAN INICIAL</span>
+            <span class="text-[10px] font-bold text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
+              <i class="fa-solid fa-lock text-amber-400 text-[9px]"></i> Bloqueado
+            </span>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-baseline gap-1.5 font-mono">
+              <span class="text-3xl sm:text-4xl font-black text-amber-400">5</span>
+              <span class="text-sm font-bold text-slate-300">USDT</span>
+              <span class="text-xs text-slate-500">/ mes</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-snug">
+              Para comenzar con operaciones esenciales.
+            </p>
+          </div>
+          <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-3 flex-1">
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> 1 operación diaria</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Gráfico y temporalidades 1m, 5m, 15m y 1h</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Tendencia, soporte y resistencia</li>
+          </ul>
+          <button onclick="abrirPlanModal('PLAN INICIAL', 5, '1 operación diaria')" class="w-full gold-btn py-3 rounded-xl text-xs sm:text-sm tracking-wide uppercase shadow-md cursor-pointer">
+            ELEGIR INICIAL
+          </button>
+        </div>
+
+        <!-- PLAN STANDARD -->
+        <div class="card-dark rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xl border-amber-500/40 bg-gradient-to-b from-[#111c34] to-[#0d1628] transition-all hover:border-amber-500/60 relative">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-black text-white tracking-wide">PLAN STANDARD</span>
+            <span class="text-[10px] font-bold text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
+              <i class="fa-solid fa-lock text-amber-400 text-[9px]"></i> Bloqueado
+            </span>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-baseline gap-1.5 font-mono">
+              <span class="text-3xl sm:text-4xl font-black text-amber-400">10</span>
+              <span class="text-sm font-bold text-slate-300">USDT</span>
+              <span class="text-xs text-slate-500">/ mes</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-snug">
+              Para consultas frecuentes y seguimiento activo.
+            </p>
+          </div>
+          <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-3 flex-1">
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> 3 operaciones diarias</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Gráfico y temporalidades 1m, 5m, 15m y 1h</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Tendencia, soporte y resistencia</li>
+          </ul>
+          <button onclick="abrirPlanModal('PLAN STANDARD', 10, '3 operaciones diarias')" class="w-full gold-btn py-3 rounded-xl text-xs sm:text-sm tracking-wide uppercase shadow-md cursor-pointer">
+            ELEGIR STANDARD
+          </button>
+        </div>
+
+        <!-- PLAN PRO -->
+        <div class="card-dark rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xl transition-all hover:border-amber-500/50 relative">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-black text-white tracking-wide">PLAN PRO</span>
+            <span class="text-[10px] font-bold text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
+              <i class="fa-solid fa-lock text-amber-400 text-[9px]"></i> Bloqueado
+            </span>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-baseline gap-1.5 font-mono">
+              <span class="text-3xl sm:text-4xl font-black text-amber-400">15</span>
+              <span class="text-sm font-bold text-slate-300">USDT</span>
+              <span class="text-xs text-slate-500">/ mes</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-snug">
+              Para un seguimiento más amplio con señales en vivo.
+            </p>
+          </div>
+          <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-3 flex-1">
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> 7 operaciones diarias</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Entrada al canal de Telegram VIP</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Entrada al grupo exclusivo de WhatsApp</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Gráfico y temporalidades 1m, 5m, 15m y 1h</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Tendencia, soporte y resistencia</li>
+          </ul>
+          <button onclick="abrirPlanModal('PLAN PRO', 15, '7 operaciones diarias')" class="w-full gold-btn py-3 rounded-xl text-xs sm:text-sm tracking-wide uppercase shadow-md cursor-pointer">
+            ELEGIR PRO
+          </button>
+        </div>
+
+        <!-- PLAN ULTRA -->
+        <div class="card-dark rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xl transition-all hover:border-amber-500/50 relative">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-black text-white tracking-wide">PLAN ULTRA</span>
+            <span class="text-[10px] font-bold text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
+              <i class="fa-solid fa-lock text-amber-400 text-[9px]"></i> Bloqueado
+            </span>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-baseline gap-1.5 font-mono">
+              <span class="text-3xl sm:text-4xl font-black text-amber-400">25</span>
+              <span class="text-sm font-bold text-slate-300">USDT</span>
+              <span class="text-xs text-slate-500">/ mes</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-snug">
+              Comunidad exclusiva con soporte directo multicanal.
+            </p>
+          </div>
+          <ul class="space-y-2 text-xs text-slate-300 border-t border-slate-800/80 pt-3 flex-1">
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Comunidad exclusiva con soporte directo multicanal</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> 7 operaciones diarias</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Entrada al canal de Telegram VIP</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Entrada al grupo exclusivo de WhatsApp</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Gráfico y temporalidades 1m, 5m, 15m y 1h</li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span> Tendencia, soporte y resistencia</li>
+          </ul>
+          <button onclick="abrirPlanModal('PLAN ULTRA', 25, '7 operaciones diarias')" class="w-full gold-btn py-3 rounded-xl text-xs sm:text-sm tracking-wide uppercase shadow-md cursor-pointer">
+            ELEGIR ULTRA
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. BANNER DE PLANES BLOQUEADOS & BILLETERA BEP20 -->
+    <section class="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-amber-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <i class="fa-solid fa-lock text-sm"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white flex items-center gap-1.5">
+              PLANES BLOQUEADOS • Requiere Confirmación de Pago USDT-BEP20
+            </h3>
+            <span class="text-xs text-amber-400/90 font-mono font-bold">
+              0 operaciones disponibles
+            </span>
+          </div>
+        </div>
+
+        <button onclick="abrirPlanModal('PLAN STANDARD', 10, '3 operaciones diarias')" class="gold-btn px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-md cursor-pointer">
+          DESBLOQUEAR PLAN
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs text-slate-300">
+        <p class="leading-relaxed">
+          Selecciona un plan, completa tus datos personales y transfiere en <strong class="text-amber-400">USDT-BEP20</strong> a:
+        </p>
+
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-2 font-mono">
+          <span id="wallet-text" class="text-amber-300 select-all break-all text-xs">
+            0x4ec021c9900178c6072092a1711167f3495a269d
+          </span>
+          <button onclick="copiarBilletera()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-600 transition-all flex items-center gap-1 cursor-pointer">
+            <i class="fa-solid fa-copy"></i>
+            <span id="copy-btn-text">Copiar</span>
+          </button>
+        </div>
+
+        <p class="text-[11px] text-slate-400">
+          <strong class="text-slate-300">Seguridad:</strong> El desbloqueo es personal y se activa inmediatamente tras ingresar tus datos y confirmar el pago.
+        </p>
+      </div>
+    </section>
+
+    <!-- 4. GRÁFICOS DE VELAS (XAU/USD) -->
+    <section class="bg-[#0b1220] border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl p-4 space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/60 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h3 class="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+            <i class="fa-solid fa-chart-line text-amber-400"></i>
+            Gráficos de velas
+          </h3>
+          <span class="text-[10px] text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-md font-mono">
+            XAU/USD
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-slate-900/90 p-0.5 rounded-lg border border-slate-800">
+            <button onclick="cambiarTF('1m')" id="tf-1m" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-amber-500 text-slate-950">1m</button>
+            <button onclick="cambiarTF('5m')" id="tf-5m" class="px-2.5 py-1 text-xs font-semibold rounded-md text-slate-400 hover:text-white">5m</button>
+            <button onclick="cambiarTF('15m')" id="tf-15m" class="px-2.5 py-1 text-xs font-semibold rounded-md text-slate-400 hover:text-white">15m</button>
+            <button onclick="cambiarTF('1h')" id="tf-1h" class="px-2.5 py-1 text-xs font-semibold rounded-md text-slate-400 hover:text-white">1h</button>
+          </div>
+          <button onclick="toggleTradingView()" id="tv-toggle-btn" class="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-chart-simple mr-1"></i> TradingView
+          </button>
+        </div>
+      </div>
+
+      <!-- OHLC Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-mono bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60">
+        <div class="flex flex-wrap items-center gap-4 text-slate-300">
+          <span>O: <strong class="text-white">$3,891.20</strong></span>
+          <span>H: <strong class="text-emerald-400">$3,895.30</strong></span>
+          <span>L: <strong class="text-red-400">$3,888.10</strong></span>
+          <span>C: <strong id="ohlc-close" class="text-emerald-400">$3,892.38</strong></span>
+          <span>Vol: <strong class="text-slate-400">142</strong></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-slate-400">Precio Actual:</span>
+          <span id="chart-live-pill" class="px-2 py-0.5 rounded font-black text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            $3,892.38
+          </span>
+        </div>
+      </div>
+
+      <!-- Chart Frame -->
+      <div id="native-chart-box" class="h-[340px] w-full bg-[#070d19] rounded-xl overflow-hidden border border-slate-900 relative">
+        <svg id="candlestick-svg" class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 600 340">
+          <!-- Dynamically populated candles and indicators -->
+        </svg>
+      </div>
+      <div id="tv-chart-box" class="hidden h-[360px] w-full bg-black rounded-xl overflow-hidden border border-slate-800">
+        <iframe 
+          src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=OANDA%3AXAUUSD&interval=60&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=070c14&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=es"
+          class="w-full h-full border-0">
+        </iframe>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-400 pt-1 border-t border-slate-800/40 font-mono">
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-amber-500"></span> EMA 20</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-sky-400"></span> EMA 50</span>
+          <span class="text-emerald-400">Soporte $3,875.00</span>
+          <span class="text-red-400">Resistencia $3,971.00</span>
+        </div>
+        <div class="text-[10px] text-slate-500">Fuente: XAU/USD Tiempo Real</div>
+      </div>
+    </section>
+
+    <!-- 5. ANÁLISIS DEL MERCADO [BLOQUEADO] -->
+    <section class="bg-[#0b1220] border border-slate-800 rounded-2xl p-5 shadow-2xl relative overflow-hidden space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <i id="lock-icon-head" class="fa-solid fa-lock text-sm"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white">Análisis del mercado</h3>
+        </div>
+        <span id="analysis-badge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full border bg-red-500/20 text-red-300 border-red-500/30 animate-pulse">
+          Bloqueado
+        </span>
+      </div>
+
+      <div id="analysis-locked-view" class="space-y-4 text-center py-2">
+        <div class="mx-auto w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/10">
+          <i class="fa-solid fa-lock text-xl animate-bounce"></i>
+        </div>
+
+        <div class="max-w-md mx-auto space-y-1.5">
+          <h4 class="text-sm font-black text-white">Análisis y Señales Bloqueados</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            El mapa técnico, zonas de Buy/Sell con Take Profit y señales operativas se desbloquean exclusivamente tras la confirmación del pago de tu plan en USDT (BEP-20).
+          </p>
+        </div>
+
+        <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 max-w-lg mx-auto grid grid-cols-2 sm:grid-cols-3 gap-3 text-left font-mono text-xs">
+          <div>
+            <span class="text-[10px] text-slate-500 block uppercase">RSI(14)</span>
+            <span class="text-slate-300 font-bold">58.7 <span class="text-[10px] text-slate-500">(NEUTRO)</span></span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 block uppercase">Dirección</span>
+            <span class="text-emerald-400 font-bold">▲ FUERTE</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 block uppercase">Soporte Clave</span>
+            <span class="text-slate-200 font-bold">$3,875.00</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 block uppercase">Resistencia</span>
+            <span class="text-red-400 font-bold">$3,971.00</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 block uppercase">Confirmación</span>
+            <span class="text-amber-400 font-bold">88%</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 block uppercase">Señal Operativa</span>
+            <span class="text-red-400 font-bold">[BLOQUEADO]</span>
+          </div>
+        </div>
+
+        <button onclick="abrirPlanModal('PLAN STANDARD', 10, '3 operaciones diarias')" class="w-full max-w-md mx-auto gold-btn py-3 rounded-xl text-xs sm:text-sm tracking-wide uppercase shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-lock"></i>
+          <span>DESBLOQUEAR ACCESO • PAGAR USDT-BEP-20</span>
+        </button>
+      </div>
+
+      <div id="analysis-unlocked-view" class="hidden space-y-4 py-2">
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <div>
+              <span class="text-xs font-bold text-white block">Señal Activa en Tiempo Real</span>
+              <span class="text-[10px] text-emerald-300">Patrón confirmado en temporalidad 15M / 1H</span>
+            </div>
+          </div>
+          <span class="bg-emerald-500 text-slate-950 font-black text-xs px-3 py-1 rounded-lg">
+            COMPRA (BUY) ↗
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">ZONA DE ENTRADA</span>
+            <span class="text-white font-bold text-sm">$3,888.50 - $3,892.00</span>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-emerald-400 block">TAKE PROFIT 1</span>
+            <span class="text-emerald-300 font-bold text-sm">$3,920.00</span>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-emerald-400 block">TAKE PROFIT 2</span>
+            <span class="text-emerald-300 font-bold text-sm">$3,950.00</span>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-red-400 block">STOP LOSS</span>
+            <span class="text-red-300 font-bold text-sm">$3,865.00</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-12 text-center text-xs text-slate-500 max-w-6xl mx-auto px-4 border-t border-slate-900 pt-6 space-y-1">
+    <p class="font-semibold text-slate-400">
+      GOLD ANALYZER - Emisora de análisis técnico y cotización simultánea XAU/USD
+    </p>
+    <p class="text-[11px] text-slate-500">
+      Mercado Spot En Vivo | Actualización Cuantitativa | Indicador Profesional de Oro
+    </p>
+  </footer>
+
+  <!-- MODAL DE SUSCRIPCIÓN EN 2 PASOS (IDÉNTICO AL VÍDEO) -->
+  <div id="plan-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="relative w-full max-w-lg bg-[#0e172a] border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Header Modal -->
+      <div class="bg-slate-900 p-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="modal-step-badge" class="text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
+              Paso 1 de 2
+            </span>
+            <span class="text-xs text-slate-400">Registro de Suscriptor</span>
+          </div>
+          <h3 id="modal-plan-title" class="text-base font-black text-white mt-0.5">
+            Suscripción <span class="text-amber-400">PLAN STANDARD</span>
+          </h3>
+        </div>
+        <button onclick="cerrarPlanModal()" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Body Modal -->
+      <div class="p-5 overflow-y-auto space-y-4">
+        <!-- PASO 1 -->
+        <form id="step1-container" onsubmit="irAlPaso2(event)" class="space-y-3.5">
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-1">
+            <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-shield-halved text-amber-400"></i> Registro de Suscriptor
+            </span>
+            <p id="modal-plan-desc" class="text-[11px] text-slate-400">
+              Completa tus datos para activar el plan y registrar las 3 operaciones diarias.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre y Apellidos *</label>
+            <input type="text" id="sub-nombre" required placeholder="Carlos Mendoza Pérez" class="inpt text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Correo Electrónico *</label>
+            <input type="email" id="sub-email" required placeholder="carlos.mendoza@email.com" class="inpt text-sm">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Teléfono *</label>
+              <div class="flex gap-1.5">
+                <select id="sub-phone-prefix" class="bg-slate-900 text-xs font-bold text-slate-200 border border-slate-700 rounded-xl px-2 py-2 outline-none shrink-0">
+                  <option value="+58">🇻🇪 +58</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+                <input type="tel" id="sub-telefono" required placeholder="412 1234567" class="inpt text-sm flex-1">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Documento / Cédula / DNI *</label>
+              <input type="text" id="sub-documento" required placeholder="V-18478242 / DNI" class="inpt text-sm">
+            </div>
+          </div>
+
+          <!-- Resumen -->
+          <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between mt-2">
+            <div>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wide block">Plan Seleccionado</span>
+              <span id="sub-summary-plan" class="text-xs font-bold text-white">PLAN STANDARD</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-400 uppercase tracking-wide block">Total a Pagar</span>
+              <span id="sub-summary-price" class="text-base font-black text-amber-400 font-mono">10 USDT</span>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full gold-btn py-3 rounded-xl text-sm uppercase shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-2">
+            <span>CONTINUAR AL PAGO (PASO 2)</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <!-- PASO 2 -->
+        <form id="step2-container" onsubmit="confirmarTransferencia(event)" class="hidden space-y-4">
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-amber-500/20 space-y-1">
+            <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-coins text-amber-400"></i> Confirmación de Transferencia USDT (BEP-20)
+            </span>
+            <p class="text-[11px] text-slate-300">
+              Transfiere <strong id="step2-amount" class="text-amber-400">10 USDT</strong> por la red <strong class="text-emerald-400">BNB Smart Chain (BEP-20)</strong> a:
+            </p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-slate-300">Dirección de Billetera Oficial BEP-20:</label>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-700 flex items-center justify-between gap-2">
+              <span class="text-xs font-mono text-amber-300 break-all select-all">
+                0x4ec021c9900178c6072092a1711167f3495a269d
+              </span>
+              <button type="button" onclick="copiarBilletera()" class="shrink-0 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-600">
+                Copiar
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Hash de Transacción (TxID) o Referencia *</label>
+            <input type="text" id="sub-txid" required placeholder="Ej. 0x8f2d... o número de transacción" class="inpt text-xs font-mono">
+          </div>
+
+          <div class="flex gap-2.5 pt-2">
+            <button type="button" onclick="volverAlPaso1()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl">
+              Volver
+            </button>
+            <button type="submit" class="flex-1 gold-btn py-2.5 rounded-xl text-xs uppercase shadow-lg flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-check"></i> CONFIRMAR TRANSFERENCIA
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE SUSCRIPTORES ADMIN -->
+  <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="relative w-full max-w-2xl bg-[#0e172a] border border-amber-500/40 rounded-2xl shadow-2xl p-5 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-users text-amber-400"></i> Panel de Suscriptores y Pagos USDT
+        </h3>
+        <button onclick="cerrarAdminModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="subscribers-list" class="flex-1 overflow-y-auto space-y-3">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE LOGIN / REGISTRO -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="relative w-full max-w-sm bg-[#0e172a] border border-amber-500/30 rounded-2xl shadow-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="auth-modal-title" class="text-sm font-black text-white">Ingresar a mi Cuenta</h3>
+        <button onclick="cerrarAuthModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="procesarAuth(event)" class="space-y-3 text-xs">
+        <div id="auth-name-box" class="hidden">
+          <label class="block text-[11px] text-slate-400 mb-1">Nombre o Alias</label>
+          <input type="text" id="auth-input-name" placeholder="Ej. Trader Gold" class="inpt text-xs">
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Correo Electrónico</label>
+          <input type="email" id="auth-input-email" required placeholder="tu@correo.com" class="inpt text-xs">
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Contraseña</label>
+          <input type="password" id="auth-input-pass" required placeholder="••••••••" class="inpt text-xs">
+        </div>
+        <button type="submit" class="w-full gold-btn py-2.5 rounded-xl text-xs uppercase shadow-md cursor-pointer">
+          Ingresar
+        </button>
+        <button type="button" onclick="loginDemo()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/30 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">
+          Acceso Rápido Demo ⚡
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT DEL SISTEMA COMPLETO -->
+  <script>
+    // Variables de estado
+    let planActual = { nombre: 'PLAN STANDARD', precio: 10, operaciones: '3 operaciones diarias' };
+    let suscriptores = JSON.parse(localStorage.getItem('gold_subscribers') || '[]');
+    let usuarioLogueado = JSON.parse(localStorage.getItem('gold_user') || 'null');
+    let useTradingViewMode = false;
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      actualizarContadorSuscriptores();
+      actualizarEstadoUsuario();
+      dibujarVelas();
+      iniciarTicks();
+    });
+
+    // Reloj
+    setInterval(() => {
+      const d = new Date();
+      document.getElementById('live-clock').innerText = 'Actualización: ' + d.toLocaleTimeString('es-ES', { hour12: false });
+    }, 1000);
+
+    // Ticks de precio
+    function iniciarTicks() {
+      let base = 3892.38;
+      setInterval(() => {
+        const delta = (Math.random() - 0.49) * 0.4;
+        base = Math.round((base + delta) * 100) / 100;
+        document.getElementById('live-price').innerText = '$' + base.toFixed(2);
+        document.getElementById('ohlc-close').innerText = '$' + base.toFixed(2);
+        document.getElementById('chart-live-pill').innerText = '$' + base.toFixed(2);
+      }, 2500);
+    }
+
+    // Copiar Billetera
+    function copiarBilletera() {
+      const w = "0x4ec021c9900178c6072092a1711167f3495a269d";
+      navigator.clipboard.writeText(w);
+      const btn = document.getElementById('copy-btn-text');
+      if (btn) btn.innerText = "¡Copiado!";
+      setTimeout(() => { if (btn) btn.innerText = "Copiar"; }, 2000);
+    }
+
+    // Modal de Planes
+    function abrirPlanModal(nombre, precio, ops) {
+      planActual = { nombre, precio, operaciones: ops };
+      document.getElementById('modal-plan-title').innerHTML = 'Suscripción <span class="text-amber-400">' + nombre + '</span>';
+      document.getElementById('modal-plan-desc').innerText = 'Completa tus datos para activar el plan y registrar las ' + ops + '.';
+      document.getElementById('sub-summary-plan').innerText = nombre;
+      document.getElementById('sub-summary-price').innerText = precio + ' USDT';
+      document.getElementById('step2-amount').innerText = precio + ' USDT';
+
+      volverAlPaso1();
+      document.getElementById('plan-modal').classList.remove('hidden');
+    }
+
+    function cerrarPlanModal() {
+      document.getElementById('plan-modal').classList.add('hidden');
+    }
+
+    function irAlPaso2(e) {
+      e.preventDefault();
+      document.getElementById('step1-container').classList.add('hidden');
+      document.getElementById('step2-container').classList.remove('hidden');
+      document.getElementById('modal-step-badge').innerText = 'Paso 2 de 2';
+    }
+
+    function volverAlPaso1() {
+      document.getElementById('step2-container').classList.add('hidden');
+      document.getElementById('step1-container').classList.remove('hidden');
+      document.getElementById('modal-step-badge').innerText = 'Paso 1 de 2';
+    }
+
+    function confirmarTransferencia(e) {
+      e.preventDefault();
+      const nuevo = {
+        id: Date.now(),
+        nombre: document.getElementById('sub-nombre').value,
+        email: document.getElementById('sub-email').value,
+        telefono: document.getElementById('sub-phone-prefix').value + ' ' + document.getElementById('sub-telefono').value,
+        documento: document.getElementById('sub-documento').value,
+        plan: planActual.nombre,
+        monto: planActual.precio,
+        txid: document.getElementById('sub-txid').value,
+        fecha: new Date().toLocaleString()
+      };
+
+      suscriptores.unshift(nuevo);
+      localStorage.setItem('gold_subscribers', JSON.stringify(suscriptores));
+      actualizarContadorSuscriptores();
+
+      cerrarPlanModal();
+      mostrarToast('¡Suscripción registrada con éxito! Tu acceso se activará tras verificar la transferencia.');
+    }
+
+    function mostrarToast(txt) {
+      const t = document.getElementById('toast-banner');
+      document.getElementById('toast-text').innerText = txt;
+      t.classList.remove('hidden');
+      t.classList.add('flex');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cerrarToast() {
+      document.getElementById('toast-banner').classList.add('hidden');
+      document.getElementById('toast-banner').classList.remove('flex');
+    }
+
+    // Modal Admin
+    function abrirAdminModal() {
+      const list = document.getElementById('subscribers-list');
+      if (suscriptores.length === 0) {
+        list.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">Aún no hay suscriptores registrados.</div>';
+      } else {
+        list.innerHTML = suscriptores.map(s => `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-1 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-white">${s.nombre}</span>
+              <span class="bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded text-[10px]">${s.plan} (${s.monto} USDT)</span>
+            </div>
+            <div class="text-slate-400 font-mono text-[11px]">${s.email} | ${s.telefono} | Doc: ${s.documento}</div>
+            <div class="text-amber-400 font-mono text-[10px] break-all">TxID: ${s.txid}</div>
+          </div>
+        `).join('');
+      }
+      document.getElementById('admin-modal').classList.remove('hidden');
+    }
+
+    function cerrarAdminModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    function actualizarContadorSuscriptores() {
+      document.getElementById('sub-counter').innerText = suscriptores.length;
+    }
+
+    // Modal Auth
+    function abrirAuthModal(tipo) {
+      document.getElementById('auth-modal-title').innerText = tipo === 'login' ? 'Ingresar a mi Cuenta' : 'Crear Cuenta en Gold Analyzer';
+      const nameBox = document.getElementById('auth-name-box');
+      if (tipo === 'register') nameBox.classList.remove('hidden');
+      else nameBox.classList.add('hidden');
+      document.getElementById('auth-modal').classList.remove('hidden');
+    }
+
+    function cerrarAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+    }
+
+    function procesarAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-input-email').value;
+      const name = document.getElementById('auth-input-name').value || email.split('@')[0];
+      usuarioLogueado = { name, email };
+      localStorage.setItem('gold_user', JSON.stringify(usuarioLogueado));
+      actualizarEstadoUsuario();
+      cerrarAuthModal();
+    }
+
+    function loginDemo() {
+      usuarioLogueado = { name: 'Trader Demo', email: 'demo@goldanalyzer.com' };
+      localStorage.setItem('gold_user', JSON.stringify(usuarioLogueado));
+      actualizarEstadoUsuario();
+      cerrarAuthModal();
+    }
+
+    function cerrarSesion() {
+      usuarioLogueado = null;
+      localStorage.removeItem('gold_user');
+      actualizarEstadoUsuario();
+    }
+
+    function actualizarEstadoUsuario() {
+      if (usuarioLogueado) {
+        document.getElementById('auth-guest').classList.add('hidden');
+        document.getElementById('auth-logged').classList.remove('hidden');
+        document.getElementById('auth-logged').classList.add('flex');
+        document.getElementById('logged-username').innerText = usuarioLogueado.name;
+      } else {
+        document.getElementById('auth-logged').classList.add('hidden');
+        document.getElementById('auth-logged').classList.remove('flex');
+        document.getElementById('auth-guest').classList.remove('hidden');
+      }
+    }
+
+    // Alternar TradingView
+    function toggleTradingView() {
+      useTradingViewMode = !useTradingViewMode;
+      document.getElementById('native-chart-box').classList.toggle('hidden', useTradingViewMode);
+      document.getElementById('tv-chart-box').classList.toggle('hidden', !useTradingViewMode);
+      document.getElementById('tv-toggle-btn').innerText = useTradingViewMode ? 'Velas Pro' : 'TradingView';
+    }
+
+    function cambiarTF(tf) {
+      ['1m', '5m', '15m', '1h'].forEach(t => {
+        const btn = document.getElementById('tf-' + t);
+        if (t === tf) {
+          btn.className = "px-2.5 py-1 text-xs font-semibold rounded-md bg-amber-500 text-slate-950";
+        } else {
+          btn.className = "px-2.5 py-1 text-xs font-semibold rounded-md text-slate-400 hover:text-white";
+        }
+      });
+      dibujarVelas();
+    }
+
+    // Dibujo de velas en SVG
+    function dibujarVelas() {
+      const svg = document.getElementById('candlestick-svg');
+      let html = '';
+      const w = 600, h = 340;
+      let base = 3892;
+
+      // Resistencia y Soporte
+      html += '<line x1="0" y1="60" x2="600" y2="60" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4 4"/>';
+      html += '<text x="10" y="52" fill="#ef4444" font-size="10" font-family="monospace">RESISTENCIA $3,971.00</text>';
+
+      html += '<line x1="0" y1="260" x2="600" y2="260" stroke="#10b981" stroke-width="1.2" stroke-dasharray="4 4"/>';
+      html += '<text x="10" y="275" fill="#10b981" font-size="10" font-family="monospace">SOPORTE CLAVE $3,875.00</text>';
+
+      // Velas
+      for (let i = 0; i < 30; i++) {
+        const x = i * 20 + 10;
+        const delta = (Math.sin(i * 0.4) + Math.random() * 0.8 - 0.4) * 8;
+        const open = 160 + delta;
+        const close = open + (Math.random() - 0.48) * 16;
+        const high = Math.min(open, close) - Math.random() * 8;
+        const low = Math.max(open, close) + Math.random() * 8;
+        const green = close <= open;
+        const color = green ? '#10b981' : '#ef4444';
+        const bodyY = Math.min(open, close);
+        const bodyH = Math.max(Math.abs(open - close), 3);
+
+        // Mecha
+        html += `<line x1="${x}" y1="${high}" x2="${x}" y2="${low}" stroke="${color}" stroke-width="1.2"/>`;
+        // Cuerpo
+        html += `<rect x="${x - 5}" y="${bodyY}" width="10" height="${bodyH}" fill="${color}" rx="1"/>`;
+        // Volumen
+        const volH = Math.random() * 30 + 5;
+        html += `<rect x="${x - 4}" y="${335 - volH}" width="8" height="${volH}" fill="${color}" opacity="0.3"/>`;
+      }
+
+      svg.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ZetaTrade - Plataforma Profesional de Trading en Vivo</title>
+  <link rel="icon" type="image/png" href="/zetatrade_logo.png">
+  <link rel="apple-touch-icon" href="/zetatrade_logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #070c17;
+      color: #f1f5f9;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .font-mono { font-family: 'JetBrains+Mono', monospace; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #070c17; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden pb-16">
+
+  <!-- TOP APP HEADER -->
+  <header class="h-14 bg-[#090f1e] border-b border-slate-800/80 px-2 sm:px-4 flex items-center justify-between sticky top-0 z-30 shadow-md">
+    <div class="flex items-center gap-2">
+      <button onclick="switchTab('inicio')" class="flex items-center gap-1.5 cursor-pointer">
+        <img src="/zetatrade_logo.png" alt="ZetaTrade" class="w-8 h-8 rounded-xl object-cover border border-amber-500/40 shadow-sm shadow-amber-500/20">
+        <span class="hidden sm:inline font-black text-sm tracking-tight text-white">Zeta<span class="text-amber-400">Trade</span></span>
+      </button>
+
+      <button onclick="openAccountModal()" class="flex items-center gap-2 bg-[#0c1427] hover:bg-slate-900 border border-slate-800 px-2.5 sm:px-3 py-1.5 rounded-2xl transition-all cursor-pointer">
+        <span id="accountTypePill" class="w-5 h-5 rounded-full flex items-center justify-center font-black text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">D</span>
+        <span id="topBalanceText" class="font-mono font-black text-xs sm:text-sm text-white">$10,000.63</span>
+        <span class="text-slate-400 text-xs">▼</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button onclick="alert('No hay notificaciones nuevas.')" class="w-8 h-8 rounded-xl bg-[#0c1427] border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white cursor-pointer">
+        🔔
+      </button>
+      <button onclick="openDepositModal()" class="w-8 h-8 rounded-xl bg-[#0c1427] border border-slate-800 flex items-center justify-center text-emerald-400 hover:bg-emerald-500/10 cursor-pointer">
+        💳
+      </button>
+      <button onclick="openApkModal()" title="Descargar APK / App Móvil" class="flex items-center gap-1 bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/50 hover:to-blue-600/50 border border-cyan-500/40 text-cyan-300 px-2 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95">
+        <span>📱</span>
+        <span class="text-[10px] font-black">APK</span>
+      </button>
+      <button onclick="switchTab('mas')" class="w-8 h-8 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center cursor-pointer shadow-md shadow-blue-500/20">
+        KP
+      </button>
+      <button onclick="openAdminModal()" title="Consola de Seguridad" class="p-1 text-slate-700 hover:text-amber-400 transition-colors cursor-pointer text-xs">
+        🛡️
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN TAB CONTENT CONTAINER -->
+  <main id="mainAppContainer" class="flex-1 flex flex-col min-h-0">
+    <!-- TRADING TAB (DEFAULT) -->
+    <div id="viewTrading" class="flex-1 flex flex-col bg-[#070c17] text-slate-100 overflow-y-auto">
+      <!-- Chart Top Bar -->
+      <div class="px-4 py-2.5 flex items-center justify-between border-b border-slate-800/80 bg-[#090f1e]/80 sticky top-0 z-10 backdrop-blur-md">
+        <button onclick="openAssetSheet()" class="flex items-center gap-2 text-left cursor-pointer">
+          <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-sm">🥇</div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span id="currentAssetSymbol" class="font-black text-sm text-white">GOLD</span>
+              <span class="text-slate-400 text-xs">▼</span>
+            </div>
+            <div class="flex items-center gap-1 text-[11px] font-mono">
+              <span class="text-emerald-400 font-bold">+0.96</span>
+              <span class="text-emerald-400 font-bold">0.02%</span>
+              <span class="text-slate-500">• 1 hora</span>
+            </div>
+          </div>
+        </button>
+
+        <div class="flex items-center gap-1.5">
+          <!-- Zoom Controls Top Bar -->
+          <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5">
+            <button onclick="handleZoomIn()" title="Aumentar zoom (+)" class="w-7 h-7 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center justify-center cursor-pointer active:scale-90 font-black text-sm">
+              +
+            </button>
+            <button onclick="handleZoomOut()" title="Alejar zoom (-)" class="w-7 h-7 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center justify-center cursor-pointer active:scale-90 font-black text-sm">
+              -
+            </button>
+          </div>
+
+          <!-- Drawing Tools Sheet Trigger -->
+          <button id="drawingsSheetBtn" onclick="openDrawingToolsModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-cyan-400 hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer shadow-md">
+            <span>🎨</span>
+            <span class="text-[11px] font-black hidden sm:inline">Dibujos</span>
+          </button>
+
+          <button id="clearMarksBtn" onclick="clearMarks()" class="hidden text-[10px] font-bold px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 cursor-pointer">
+            Borrar Marcas
+          </button>
+          <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40 flex items-center justify-center text-xs">✨</div>
+        </div>
+      </div>
+
+      <!-- Active Drawing Tool Notification Banner -->
+      <div id="activeDrawingBanner" class="hidden bg-cyan-500/10 border-b border-cyan-500/30 px-3 py-1.5 flex items-center justify-between text-xs text-cyan-300">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          <span>Herramienta activa: <strong id="activeToolNameLabel" class="uppercase">LÍNEA</strong> — Toca en el gráfico para colocarla</span>
+        </div>
+        <button onclick="cancelActiveTool()" class="text-slate-400 hover:text-white font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] cursor-pointer">
+          Cancelar
+        </button>
+      </div>
+
+      <!-- Canvas Chart Container with Long-Press & Zoom -->
+      <div class="relative w-full h-[360px] sm:h-[420px] bg-[#060a12] border-b border-slate-800/80 touch-none">
+        <canvas id="tradingCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+        <!-- Floating Quick Drawing Bar on Left of Chart -->
+        <div class="absolute top-3 left-3 z-20 flex flex-col gap-1.5 bg-[#090f1e]/90 backdrop-blur-md p-1 rounded-2xl border border-slate-800 shadow-xl">
+          <button onclick="openDrawingToolsModal()" title="Menú completo de dibujos" class="w-7 h-7 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-400 flex items-center justify-center cursor-pointer text-xs">
+            🎨
+          </button>
+          <button onclick="selectDrawingTool('horizontal_line')" title="Línea Horizontal (Soporte/Resistencia)" class="w-7 h-7 rounded-xl flex items-center justify-center cursor-pointer text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-black">
+            —
+          </button>
+          <button onclick="selectDrawingTool('trendline')" title="Línea de Tendencia" class="w-7 h-7 rounded-xl flex items-center justify-center cursor-pointer text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
+            📈
+          </button>
+          <button onclick="selectDrawingTool('rectangle')" title="Rectángulo (Zona Oferta/Demanda)" class="w-7 h-7 rounded-xl flex items-center justify-center cursor-pointer text-amber-400 hover:bg-slate-800 text-xs">
+            ▢
+          </button>
+          <button onclick="selectDrawingTool('long_position')" title="Posición Larga (R:R Long)" class="w-7 h-7 rounded-xl flex items-center justify-center cursor-pointer text-emerald-400 hover:bg-slate-800 text-[9px] font-black">
+            R:R
+          </button>
+          <button onclick="toggleHideDrawings()" title="Ocultar/Mostrar dibujos" class="w-7 h-7 rounded-xl flex items-center justify-center cursor-pointer text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
+            👁️
+          </button>
+          <button id="delDrawingsBtn" onclick="clearAllDrawings()" title="Borrar todos los dibujos" class="hidden w-7 h-7 rounded-xl flex items-center justify-center cursor-pointer text-rose-400 hover:bg-rose-500/20 text-xs">
+            🗑️
+          </button>
+        </div>
+
+        <!-- Floating Zoom & Pan Pill at Bottom Right -->
+        <div class="absolute bottom-3 right-3 z-20 flex items-center gap-1 bg-[#090f1e]/90 backdrop-blur-md px-2 py-1 rounded-xl border border-slate-800 text-xs font-mono shadow-md">
+          <button onclick="handleZoomIn()" class="p-1 hover:text-cyan-400 cursor-pointer font-bold" title="Aumentar zoom (+)">
+            🔍+
+          </button>
+          <span id="candlesZoomDisplay" class="text-[10px] text-slate-400 px-1 font-bold">38V</span>
+          <button onclick="handleZoomOut()" class="p-1 hover:text-cyan-400 cursor-pointer font-bold" title="Alejar zoom (-)">
+            🔍-
+          </button>
+          <button onclick="handleResetZoom()" class="p-1 text-slate-500 hover:text-white cursor-pointer ml-0.5 border-l border-slate-800 pl-1" title="Restablecer">
+            🔄
+          </button>
+        </div>
+
+        <div class="absolute bottom-2 left-12 text-[10px] font-black text-slate-500 flex items-center gap-1 pointer-events-none">
+          <span class="bg-slate-800 px-1 py-0.2 rounded font-mono">TV</span>
+          <span>TradingView</span>
+        </div>
+
+        <!-- Long Press Quick Order Floating Action Popup -->
+        <div id="quickOrderPopup" class="hidden absolute z-20 flex flex-col gap-1.5 p-2 bg-[#090f1e]/95 backdrop-blur-md border border-cyan-500/60 rounded-2xl shadow-2xl">
+          <div class="flex items-center justify-between gap-2 px-1 text-[11px] text-slate-300 font-mono">
+            <span id="popupCandleLabel" class="font-bold text-amber-400">Vela</span>
+            <span id="popupPriceLabel" class="font-black text-white">$4,066.00</span>
+            <button onclick="cancelMarker()" class="text-slate-500 hover:text-white p-0.5">✕</button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="confirmMarkedTrade('buy')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow-md cursor-pointer">
+              ▲ COMPRA
+            </button>
+            <button onclick="confirmMarkedTrade('sell')" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs flex items-center gap-1 shadow-md cursor-pointer">
+              ▼ VENTA
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeframes Bar with Interval Drawer -->
+      <div class="px-4 py-2 border-b border-slate-800/80 bg-[#080e1b] flex items-center justify-between">
+        <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800/80 text-xs font-mono font-bold">
+          <button onclick="setTimeframe('1m')" class="tf-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white cursor-pointer" data-tf="1m">1m</button>
+          <button onclick="setTimeframe('5m')" class="tf-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white cursor-pointer" data-tf="5m">5m</button>
+          <button onclick="setTimeframe('15m')" class="tf-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white cursor-pointer" data-tf="15m">15m</button>
+          <button onclick="setTimeframe('1H')" class="tf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-white font-black cursor-pointer" data-tf="1H">1H</button>
+          <button onclick="setTimeframe('4H')" class="tf-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white cursor-pointer" data-tf="4H">4H</button>
+          <button onclick="setTimeframe('1D')" class="tf-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white cursor-pointer" data-tf="1D">1D</button>
+        </div>
+        <button onclick="openIntervalSheetModal()" class="p-1.5 rounded-lg text-cyan-400 hover:text-white bg-slate-900 border border-slate-800 text-xs font-bold flex items-center gap-1 cursor-pointer" title="Más intervalos y rango de fechas">
+          <span>⏱️</span>
+          <span class="text-[10px]">Intervalos</span>
+        </button>
+      </div>
+
+      <!-- EXECUTION BUTTONS (VENTA / COMPRA) -->
+      <div class="p-3 bg-[#0a1122] border-b border-slate-800/80">
+        <div class="flex items-stretch gap-2 max-w-lg mx-auto">
+          <button onclick="openOrderModal('sell')" class="flex-1 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 text-white rounded-2xl p-3 flex flex-col items-center justify-center shadow-lg shadow-rose-500/20 active:scale-[0.98] transition-all cursor-pointer">
+            <span class="text-[11px] font-bold tracking-wider uppercase opacity-90">VENTA</span>
+            <span id="sellPriceDisplay" class="text-xl sm:text-2xl font-black font-mono">4,066.36</span>
+          </button>
+
+          <div class="flex items-center justify-center px-2">
+            <span class="bg-slate-900 border border-slate-800 text-slate-300 font-mono text-xs font-bold px-2 py-1 rounded-full">0.55</span>
+          </div>
+
+          <button onclick="openOrderModal('buy')" class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 text-white rounded-2xl p-3 flex flex-col items-center justify-center shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer">
+            <span class="text-[11px] font-bold tracking-wider uppercase opacity-90">COMPRA</span>
+            <span id="buyPriceDisplay" class="text-xl sm:text-2xl font-black font-mono">4,066.91</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Panorama & Indicators -->
+      <div class="p-3 max-w-2xl mx-auto w-full space-y-3">
+        <div class="bg-[#0b1325] border border-slate-800/80 rounded-2xl p-4 shadow-xl">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800/60">
+            <div class="flex items-center gap-2">
+              <span class="text-purple-400 font-bold">✨ Panorama con IA</span>
+            </div>
+            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">
+              Alcista ↗
+            </span>
+          </div>
+          <p class="mt-2.5 text-xs text-slate-300 leading-relaxed">
+            <strong id="aiAssetLabel" class="text-amber-400">GOLD</strong> rebotó con fuerza desde los mínimos de finales de la semana pasada, aceleró por encima de 4,000 el miércoles y alcanzó nuevos máximos el jueves.
+          </p>
+          <div class="mt-2 text-[10px] text-slate-500">Actualizado hace 52 min</div>
+        </div>
+
+        <div class="bg-[#0b1325] border border-slate-800/80 rounded-2xl p-4 shadow-xl space-y-2">
+          <div class="text-xs font-bold text-slate-300">Sentimiento del mercado</div>
+          <div class="flex justify-between text-xs font-mono font-bold">
+            <span class="text-emerald-400">50% Compra</span>
+            <span class="text-rose-400">Venta 50%</span>
+          </div>
+          <div class="h-2 w-full bg-slate-900 rounded-full overflow-hidden flex">
+            <div class="bg-emerald-500 h-full w-1/2"></div>
+            <div class="bg-rose-500 h-full w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INICIO TAB -->
+    <div id="viewInicio" class="hidden flex-1 flex flex-col bg-[#070c17] text-slate-100 overflow-y-auto p-4 space-y-4 max-w-2xl mx-auto w-full">
+      <div class="bg-gradient-to-br from-[#0e1629] via-[#0b1222] to-[#070c17] border border-slate-800 rounded-3xl p-5 shadow-2xl">
+        <div class="flex justify-between items-center text-xs font-mono text-slate-400 pb-2">
+          <span>Standard #108626489</span>
+          <button onclick="openAccountModal()" class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold">+</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="homeAccountBadge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Demo</span>
+          <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">MT5 Standard</span>
+        </div>
+        <div class="text-3xl font-black font-mono text-white mt-3" id="homeBalanceDisplay">$10,000.63</div>
+        <div class="text-xs font-mono text-slate-400 mt-0.5">$0.00</div>
+        <div class="grid grid-cols-2 gap-2.5 mt-5">
+          <button onclick="openAccountModal()" class="py-2.5 rounded-2xl bg-slate-900 border border-slate-800 font-bold text-xs text-white">⚙️ Gestionar</button>
+          <button onclick="openDepositModal()" class="py-2.5 rounded-2xl bg-white text-slate-950 font-black text-xs">💰 Depositar</button>
+        </div>
+      </div>
+
+      <div class="bg-[#0b1325] border border-slate-800 rounded-2xl p-4 space-y-2">
+        <h4 class="font-black text-sm text-white">Cartera</h4>
+        <div id="homeCarteraPreview" class="py-4 text-center text-xs text-slate-400">
+          Todavía no tiene posiciones abiertas.
+          <button onclick="switchTab('trading')" class="block mx-auto mt-2 px-5 py-2 bg-white text-slate-950 font-black rounded-xl">Operar ahora</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MERCADOS TAB -->
+    <div id="viewMercados" class="hidden flex-1 flex flex-col bg-[#070c17] text-slate-100 overflow-y-auto p-4 max-w-2xl mx-auto w-full">
+      <h2 class="text-xl font-black text-white mb-3">Mercados</h2>
+      <div id="marketsListContainer" class="divide-y divide-slate-800/60"></div>
+    </div>
+
+    <!-- CARTERA TAB -->
+    <div id="viewCartera" class="hidden flex-1 flex flex-col bg-[#070c17] text-slate-100 overflow-y-auto p-4 max-w-2xl mx-auto w-full">
+      <h2 class="text-xl font-black text-white mb-3">Operaciones</h2>
+      <div id="positionsContainer" class="space-y-3">
+        <div class="py-16 text-center text-xs text-slate-400">
+          No tienes posiciones abiertas en este momento.
+          <button onclick="switchTab('trading')" class="block mx-auto mt-2 px-5 py-2 bg-white text-slate-950 font-black rounded-xl">Abrir una posición</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAS / MI PERFIL TAB -->
+    <div id="viewMas" class="hidden flex-1 flex flex-col bg-[#070c17] text-slate-100 overflow-y-auto p-4 space-y-4 max-w-2xl mx-auto w-full">
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 rounded-full bg-blue-600 text-white font-black text-xl flex items-center justify-center">KP</div>
+        <div>
+          <h3 class="font-black text-lg text-white">Hola, Kervin</h3>
+          <p class="text-xs text-slate-400 font-mono">kervinjose022@gmail.com</p>
+        </div>
+      </div>
+
+      <div class="bg-[#0b1325] border border-slate-800 rounded-2xl p-4">
+        <div class="flex justify-between text-xs">
+          <div><span class="text-slate-400 text-[11px]">Nivel</span><div class="font-bold text-white">🥉 Bronce</div></div>
+          <div class="text-right"><span class="text-slate-400 text-[11px]">Volumen</span><div class="font-bold text-white">$0 / $1,000,000</div></div>
+        </div>
+        <div class="h-1.5 w-full bg-slate-900 rounded-full mt-2"><div class="h-full bg-amber-400 w-1/12"></div></div>
+      <!-- Card Descargar APK -->
+      <div class="bg-gradient-to-r from-cyan-950/40 via-[#0b1325] to-blue-950/40 border border-cyan-500/40 rounded-2xl p-4 shadow-xl flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center text-lg">
+            📱
+          </div>
+          <div>
+            <h4 class="font-black text-sm text-white flex items-center gap-1.5">
+              <span>Descargar APK / App Móvil</span>
+              <span class="text-[9px] bg-cyan-500/20 text-cyan-400 px-1.5 py-0.2 rounded font-mono">NUEVA</span>
+            </h4>
+            <p class="text-[10px] text-cyan-300">Actualizar APK con el diseño de broker en vivo</p>
+          </div>
+        </div>
+        <button onclick="openApkModal()" class="px-3.5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer active:scale-95 transition-all">
+          Descargar
+        </button>
+      </div>
+
+      <div class="bg-[#0b1325] border border-slate-800 rounded-2xl divide-y divide-slate-800 overflow-hidden text-xs font-semibold">
+        <button onclick="openAdminModal()" class="w-full p-4 flex items-center justify-between text-amber-300 hover:bg-slate-900 cursor-pointer">
+          <span>🛡️ Panel de Control de Administrador (Super Admin)</span>
+          <span>›</span>
+        </button>
+        <button class="w-full p-4 flex items-center justify-between text-slate-200 hover:bg-slate-900">
+          <span>Ajustes</span><span>›</span>
+        </button>
+        <button class="w-full p-4 flex items-center justify-between text-slate-200 hover:bg-slate-900">
+          <span>Atención al cliente</span><span>›</span>
+        </button>
+        <button onclick="alert('Sesión restablecida')" class="w-full p-4 flex items-center justify-between text-rose-400 hover:bg-rose-500/10">
+          <span>Cerrar sesión</span><span>›</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 5-TAB BOTTOM NAVIGATION BAR -->
+  <nav class="fixed bottom-0 left-0 right-0 h-16 bg-[#080d1a] border-t border-slate-800/80 px-2 flex items-center justify-around z-40 backdrop-blur-md">
+    <button onclick="switchTab('inicio')" id="navInicio" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 cursor-pointer">
+      <span class="text-lg">🏠</span>
+      <span class="text-[10px]">Inicio</span>
+    </button>
+    <button onclick="switchTab('mercados')" id="navMercados" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 cursor-pointer">
+      <span class="text-lg">📊</span>
+      <span class="text-[10px]">Mercados</span>
+    </button>
+    <button onclick="switchTab('trading')" id="navTrading" class="flex flex-col items-center justify-center flex-1 py-1 text-emerald-400 font-bold cursor-pointer">
+      <span class="text-lg">📈</span>
+      <span class="text-[10px]">Trading</span>
+    </button>
+    <button onclick="switchTab('cartera')" id="navCartera" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 cursor-pointer relative">
+      <span class="text-lg">💼</span>
+      <span id="navCarteraBadge" class="hidden absolute top-0 right-4 bg-emerald-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+      <span class="text-[10px]">Cartera</span>
+    </button>
+    <button onclick="switchTab('mas')" id="navMas" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 cursor-pointer">
+      <span class="text-lg">👤</span>
+      <span class="text-[10px]">Más</span>
+    </button>
+  </nav>
+
+  <!-- MODAL: ORDER EXECUTION -->
+  <div id="orderModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-lg bg-[#0d1527] border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl text-white">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <h3 id="orderModalTitle" class="font-black text-sm sm:text-base">Orden de COMPRA</h3>
+        <button onclick="closeOrderModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <div class="flex justify-between text-xs text-slate-400 font-semibold">
+          <span>Volumen (Lotes)</span>
+          <span id="marginReqDisplay" class="text-amber-400 font-mono">Margen: ~$100.00</span>
+        </div>
+        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-2xl p-1">
+          <button onclick="adjustOrderLots(-0.01)" class="w-10 h-10 rounded-xl bg-slate-900 text-white font-bold text-lg">-</button>
+          <input type="number" id="orderLotsInput" value="0.05" step="0.01" min="0.01" max="10" onchange="updateLots(this.value)" class="flex-1 bg-transparent text-center font-mono font-black text-xl text-white focus:outline-none">
+          <button onclick="adjustOrderLots(0.01)" class="w-10 h-10 rounded-xl bg-slate-900 text-white font-bold text-lg">+</button>
+        </div>
+        <button onclick="executeOrderConfirm()" id="orderConfirmBtn" class="w-full mt-4 py-3.5 rounded-2xl font-black text-sm uppercase bg-emerald-500 text-slate-950 cursor-pointer">
+          Confirmar Compra
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACCOUNT SWITCHER -->
+  <div id="accountModal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-lg bg-[#0d1527] border-t border-slate-800 rounded-t-3xl p-5 shadow-2xl text-white">
+      <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>
+      <h3 class="font-black text-center text-base mb-4">Seleccione cuenta</h3>
+      <div class="space-y-2">
+        <div onclick="selectAccountType(true)" class="p-4 rounded-2xl border border-amber-500 bg-amber-500/10 flex justify-between items-center cursor-pointer">
+          <div>
+            <div class="text-xs text-slate-400">Standard</div>
+            <div class="font-mono font-black text-lg text-white" id="modalDemoBal">$10,000.63</div>
+            <div class="text-[10px] text-slate-500 font-mono">#108626489, Standard, MT5</div>
+          </div>
+          <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold px-2 py-0.5 rounded-full">Demo ✓</span>
+        </div>
+
+        <div onclick="selectAccountType(false)" class="p-4 rounded-2xl border border-slate-800 bg-slate-900/60 flex justify-between items-center cursor-pointer">
+          <div>
+            <div class="text-xs text-slate-400">Standard</div>
+            <div class="font-mono font-black text-lg text-white" id="modalRealBal">$0.00</div>
+            <div class="text-[10px] text-slate-500 font-mono">#430726287, Standard, MT5</div>
+          </div>
+          <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold px-2 py-0.5 rounded-full">Real</span>
+        </div>
+      </div>
+      <button onclick="closeAccountModal()" class="w-full mt-4 py-3 bg-slate-800 text-white font-bold text-xs rounded-xl">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL: ADMIN ACCESS GATEWAY -->
+  <div id="adminModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="w-full max-w-4xl bg-[#090f1e] border border-amber-500/40 rounded-3xl p-6 shadow-2xl text-white max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <h3 class="font-black text-lg text-white">Panel de Administrador (Super Admin)</h3>
+        <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+
+      <div id="adminAuthGate" class="py-6 max-w-md mx-auto space-y-3">
+        <input type="email" id="adminEmail" placeholder="kervinjose022@gmail.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm">
+        <input type="password" id="adminPass" placeholder="••••" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm">
+        <button onclick="unlockAdmin()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl">Desbloquear Panel</button>
+      </div>
+
+      <div id="adminPanelContent" class="hidden space-y-4 pt-3">
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">Total Usuarios: <span id="admTotalUsers" class="font-bold text-white">3</span></div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">Capital Real: <span class="font-bold text-emerald-400">$6,700.00</span></div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">Servidor: <span class="font-bold text-emerald-400">ONLINE</span></div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-950 text-slate-400 uppercase text-[10px]">
+              <tr><th class="p-2">Usuario</th><th class="p-2">Saldo Real</th><th class="p-2">Acciones</th></tr>
+            </thead>
+            <tbody id="adminUsersTbody" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+  <!-- MODAL: DESCARGAR / ACTUALIZAR APK -->
+  <!-- MODAL: DESCARGAR APK (COMPACTO) -->
+  <div id="apkModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="w-full max-w-xs bg-[#0b1325] border border-cyan-500/40 rounded-3xl p-5 shadow-2xl text-white relative">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <img src="/zetatrade_logo.png" alt="ZetaTrade" class="w-8 h-8 rounded-xl object-cover border border-amber-500/40 shadow-sm">
+          <div>
+            <h3 class="font-black text-sm text-white">Descargar APK</h3>
+            <p class="text-[10px] text-cyan-300 font-medium">ZetaTrade Oficial</p>
+          </div>
+        </div>
+        <button onclick="closeApkModal()" class="w-7 h-7 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors text-xs">✕</button>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <div>
+          <div class="flex items-center justify-between mb-1.5 text-[11px] font-bold text-slate-400">
+            <span>Link de la APK:</span>
+            <button onclick="toggleEditApkUrl()" id="editApkLinkBtn" class="text-cyan-400 hover:text-cyan-300 text-[10px] font-bold cursor-pointer">
+              Cambiar
+            </button>
+          </div>
+          <div class="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-xl p-1.5 focus-within:border-cyan-500">
+            <input type="text" id="apkTargetUrlInput" readonly class="bg-transparent text-slate-200 flex-1 outline-none font-mono text-[11px] px-1.5 truncate">
+            <button id="copyApkBtn" onclick="copyApkLink()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold text-[11px] cursor-pointer transition-all active:scale-95 shrink-0">
+              Copiar
+            </button>
+          </div>
+        </div>
+
+        <button onclick="downloadApkDirect()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 text-slate-950 font-black text-xs rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer">
+          <span>⬇️ Descargar Archivo APK (.apk)</span>
+        </button>
+
+        <div class="pt-0.5 text-center text-[10px] text-slate-500 font-mono">
+          ZetaTrade v1.0 • Android
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HERRAMIENTAS Y DIBUJOS (TRADINGVIEW STYLE) -->
+  <div id="drawingToolsModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-sm">
+    <div class="w-full max-w-xl bg-[#0b1325] border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl text-white max-h-[85vh] flex flex-col overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-4 pb-2 border-b border-slate-800/80">
+        <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🎨</span>
+            <h3 class="font-black text-base text-white">Herramientas y Dibujos</h3>
+            <span id="activeDrawingsCountBadge" class="hidden bg-cyan-500/20 text-cyan-400 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border border-cyan-500/30">0</span>
+          </div>
+          <button onclick="closeDrawingToolsModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">✕</button>
+        </div>
+
+        <!-- Filter / Search -->
+        <div class="mt-3 relative">
+          <input type="text" id="drawingSearchInput" oninput="filterDrawingCards(this.value)" placeholder="Buscar herramienta (ej. Línea, Fibonacci, Zoom)..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <!-- Horizontal Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar mt-3 pt-1 text-xs font-bold">
+          <button onclick="setDrawTab('herramientas')" id="tabBtn_herramientas" class="px-3 py-1.5 rounded-xl whitespace-nowrap cursor-pointer transition-all bg-cyan-500 text-slate-950 font-black shadow-md">Herramientas</button>
+          <button onclick="setDrawTab('tendencia')" id="tabBtn_tendencia" class="px-3 py-1.5 rounded-xl whitespace-nowrap cursor-pointer transition-all bg-slate-900 text-slate-400 hover:text-white">Tendencia</button>
+          <button onclick="setDrawTab('figuras')" id="tabBtn_figuras" class="px-3 py-1.5 rounded-xl whitespace-nowrap cursor-pointer transition-all bg-slate-900 text-slate-400 hover:text-white">Figuras</button>
+          <button onclick="setDrawTab('prevision')" id="tabBtn_prevision" class="px-3 py-1.5 rounded-xl whitespace-nowrap cursor-pointer transition-all bg-slate-900 text-slate-400 hover:text-white">Previsión y Medida</button>
+          <button onclick="setDrawTab('fibonacci')" id="tabBtn_fibonacci" class="px-3 py-1.5 rounded-xl whitespace-nowrap cursor-pointer transition-all bg-slate-900 text-slate-400 hover:text-white">Fibonacci</button>
+        </div>
+      </div>
+
+      <!-- Tools Grid -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- Section: Herramientas -->
+        <div id="drawSection_herramientas" class="space-y-3">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Acciones del Gráfico</div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <button onclick="handleZoomIn(); closeDrawingToolsModal();" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-black text-lg">🔍+</div>
+              <span class="font-bold text-xs text-white">Aumentar zoom</span>
+              <span class="text-[10px] text-slate-400">Ver velas de cerca</span>
+            </button>
+            <button onclick="handleZoomOut(); closeDrawingToolsModal();" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-black text-lg">🔍-</div>
+              <span class="font-bold text-xs text-white">Alejar zoom</span>
+              <span class="text-[10px] text-slate-400">Ver más historial</span>
+            </button>
+            <button onclick="handleResetZoom(); closeDrawingToolsModal();" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 flex items-center justify-center font-black text-sm">🔄</div>
+              <span class="font-bold text-xs text-white">Restablecer zoom</span>
+              <span class="text-[10px] text-slate-400">Escala normal</span>
+            </button>
+            <button onclick="selectDrawingTool('measure')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm">📏</div>
+              <span class="font-bold text-xs text-white">Medida (Regla)</span>
+              <span class="text-[10px] text-slate-400">Calcular pips y %</span>
+            </button>
+            <button onclick="toggleHideDrawings(); closeDrawingToolsModal();" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-sm">👁️</div>
+              <span class="font-bold text-xs text-white">Ocultar / Mostrar</span>
+              <span class="text-[10px] text-slate-400">Alternar dibujos</span>
+            </button>
+            <button onclick="clearAllDrawings(); closeDrawingToolsModal();" class="p-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center font-bold text-sm">🗑️</div>
+              <span class="font-bold text-xs text-rose-400">Eliminar dibujos</span>
+              <span class="text-[10px] text-rose-300/70">Limpiar gráfico</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section: Tendencia -->
+        <div id="drawSection_tendencia" class="hidden space-y-3">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Líneas de Soporte y Tendencia</div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <button onclick="selectDrawingTool('horizontal_line')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-black text-xl">—</div>
+              <span class="font-bold text-xs text-white">Línea horizontal</span>
+              <span class="text-[10px] text-slate-400">Soporte y resistencia</span>
+            </button>
+            <button onclick="selectDrawingTool('trendline')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-base">📈</div>
+              <span class="font-bold text-xs text-white">Línea de tendencia</span>
+              <span class="text-[10px] text-slate-400">Trazar dirección</span>
+            </button>
+            <button onclick="selectDrawingTool('ray')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-base">↗️</div>
+              <span class="font-bold text-xs text-white">Semirrecta (Ray)</span>
+              <span class="text-[10px] text-slate-400">Rayo extendido</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section: Figuras -->
+        <div id="drawSection_figuras" class="hidden space-y-3">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Zonas y Dibujo Libre</div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <button onclick="selectDrawingTool('rectangle')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-lg">▢</div>
+              <span class="font-bold text-xs text-white">Rectángulo</span>
+              <span class="text-[10px] text-slate-400">Zonas Oferta/Demanda</span>
+            </button>
+            <button onclick="selectDrawingTool('brush')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold text-base">🖌️</div>
+              <span class="font-bold text-xs text-white">Pincel</span>
+              <span class="text-[10px] text-slate-400">Trazo a mano alzada</span>
+            </button>
+            <button onclick="selectDrawingTool('arrow_up')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-base">⬆️</div>
+              <span class="font-bold text-xs text-white">Flecha arriba</span>
+              <span class="text-[10px] text-slate-400">Señal alcista</span>
+            </button>
+            <button onclick="selectDrawingTool('arrow_down')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center justify-center font-bold text-base">⬇️</div>
+              <span class="font-bold text-xs text-white">Flecha abajo</span>
+              <span class="text-[10px] text-slate-400">Señal bajista</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section: Previsión y Medida -->
+        <div id="drawSection_prevision" class="hidden space-y-3">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Gestión de Riesgo y Ratios</div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <button onclick="selectDrawingTool('long_position')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-black text-xs">LONG</div>
+              <span class="font-bold text-xs text-white">Posición larga</span>
+              <span class="text-[10px] text-emerald-400">Caja R:R Compra TP/SL</span>
+            </button>
+            <button onclick="selectDrawingTool('short_position')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center justify-center font-black text-xs">SHORT</div>
+              <span class="font-bold text-xs text-white">Posición corta</span>
+              <span class="text-[10px] text-rose-400">Caja R:R Venta TP/SL</span>
+            </button>
+            <button onclick="selectDrawingTool('measure')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold text-base">📊</div>
+              <span class="font-bold text-xs text-white">Rango de precios</span>
+              <span class="text-[10px] text-slate-400">Diferencia exacta</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section: Fibonacci -->
+        <div id="drawSection_fibonacci" class="hidden space-y-3">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Niveles de Retroceso Áureo</div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <button onclick="selectDrawingTool('fibonacci')" class="p-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-2xl flex flex-col items-center gap-1.5 text-center cursor-pointer active:scale-95 col-span-2">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center font-black text-xs">0.618</div>
+              <span class="font-bold text-xs text-white">Retroceso de Fibonacci</span>
+              <span class="text-[10px] text-amber-300">Niveles 0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INTERVALOS Y RANGO DE FECHAS (TRADINGVIEW STYLE) -->
+  <div id="intervalSheetModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-sm">
+    <div class="w-full max-w-lg bg-[#0b1325] border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl text-white max-h-[85vh] flex flex-col overflow-hidden">
+      <div class="p-4 pb-2 border-b border-slate-800/80">
+        <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">⏱️</span>
+            <h3 class="font-black text-base text-white">Intervalos y Rango de Fechas</h3>
+          </div>
+          <button onclick="closeIntervalSheetModal()" class="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">✕</button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+        <div>
+          <div class="font-bold text-slate-400 text-[11px] uppercase mb-2">Ticks (Tick Chart)</div>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setTimeframe('1T'); closeIntervalSheetModal();" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">1T (Tick)</button>
+            <button onclick="setTimeframe('10T'); closeIntervalSheetModal();" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">10T</button>
+            <button onclick="setTimeframe('100T'); closeIntervalSheetModal();" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">100T</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="font-bold text-slate-400 text-[11px] uppercase mb-2">Segundos (Alta Frecuencia)</div>
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="setTimeframe('1c'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">1c</button>
+            <button onclick="setTimeframe('5c'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">5c</button>
+            <button onclick="setTimeframe('15c'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">15c</button>
+            <button onclick="setTimeframe('30c'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">30c</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="font-bold text-slate-400 text-[11px] uppercase mb-2">Minutos</div>
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="setTimeframe('1m'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">1m</button>
+            <button onclick="setTimeframe('3m'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">3m</button>
+            <button onclick="setTimeframe('5m'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">5m</button>
+            <button onclick="setTimeframe('15m'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">15m</button>
+            <button onclick="setTimeframe('30m'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">30m</button>
+            <button onclick="setTimeframe('45m'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">45m</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="font-bold text-slate-400 text-[11px] uppercase mb-2">Horas y Días</div>
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="setTimeframe('1H'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-cyan-500 text-slate-950 font-mono font-black">1H</button>
+            <button onclick="setTimeframe('2H'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">2H</button>
+            <button onclick="setTimeframe('4H'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">4H</button>
+            <button onclick="setTimeframe('1D'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">1D</button>
+            <button onclick="setTimeframe('1W'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">1W</button>
+            <button onclick="setTimeframe('1M'); closeIntervalSheetModal();" class="p-2 rounded-xl bg-slate-900 border border-slate-800 font-mono font-bold text-white hover:bg-slate-800">1M</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    const ASSETS = [
+      { symbol: 'GOLD', name: 'GOLD Spot / USD', price: 4066.44, change: -0.55 },
+      { symbol: 'BTCUSD', name: 'Bitcoin vs US Dollar', price: 76151.75, change: 0.42 },
+      { symbol: 'JP225Cash', name: 'Japan 225 Index Cash', price: 58260.00, change: 2.18 },
+      { symbol: 'USDJPY', name: 'US Dollar vs Japanese Yen', price: 158.278, change: 0.39 },
+      { symbol: 'EURUSD', name: 'Euro vs US Dollar', price: 1.11767, change: -0.36 },
+      { symbol: 'OILCash', name: 'WTI Oil Cash', price: 91.55, change: -0.45 },
+      { symbol: 'SILVER', name: 'Silver Spot / USD', price: 52.086, change: 0.86 }
+    ];
+
+    let currentAsset = ASSETS[0];
+    let currentPrice = currentAsset.price;
+    let isDemo = true;
+    let demoBalance = 10000.63;
+    let realBalance = 0.00;
+    let orderType = 'buy';
+    let currentLots = 0.05;
+
+    let activePositions = [];
+    let markedOrders = [];
+    let candles = [];
+
+    // Zoom & Pan & Drawing State
+    let visibleCandlesCount = 38;
+    let panIndex = 0;
+    let activeTool = 'cursor';
+    let drawings = [];
+    let tempDrawingPoints = [];
+    let isDrawingsHidden = false;
+    let pinchStartDist = null;
+    let touchStartPos = null;
+    let lastPanTouchX = null;
+
+    function initCandles() {
+      candles = [];
+      let base = currentPrice - 9.0;
+      const count = 120; // 120 candles for deep zoom and history panning!
+      for (let i = 0; i < count; i++) {
+        const open = base;
+        const change = (Math.random() - 0.492) * 2.8;
+        const close = open + change;
+        const high = Math.max(open, close) + Math.random() * 2.2;
+        const low = Math.min(open, close) - Math.random() * 2.2;
+        candles.push({ open, high, low, close });
+        base = close;
+      }
+      currentPrice = candles[candles.length - 1].close;
+      panIndex = 0;
+    }
+    initCandles();
+
+    // Canvas & Context Setup
+    const canvas = document.getElementById('tradingCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      drawChart();
+    }
+    window.addEventListener('resize', resizeCanvas);
+    setTimeout(resizeCanvas, 50);
+
+    // Zoom Controls
+    function updateZoomDisplay() {
+      const disp = document.getElementById('candlesZoomDisplay');
+      if (disp) disp.innerText = `${visibleCandlesCount}V`;
+    }
+
+    function handleZoomIn() {
+      visibleCandlesCount = Math.max(12, visibleCandlesCount - 6);
+      updateZoomDisplay();
+      drawChart();
+    }
+
+    function handleZoomOut() {
+      visibleCandlesCount = Math.min(95, visibleCandlesCount + 6);
+      updateZoomDisplay();
+      drawChart();
+    }
+
+    function handleResetZoom() {
+      visibleCandlesCount = 38;
+      panIndex = 0;
+      updateZoomDisplay();
+      drawChart();
+    }
+
+    // Modal controls for Drawings & Intervals
+    function openDrawingToolsModal() {
+      document.getElementById('drawingToolsModal').classList.remove('hidden');
+    }
+    function closeDrawingToolsModal() {
+      document.getElementById('drawingToolsModal').classList.add('hidden');
+    }
+    function setDrawTab(tab) {
+      ['herramientas', 'tendencia', 'figuras', 'prevision', 'fibonacci'].forEach(t => {
+        const sec = document.getElementById('drawSection_' + t);
+        const btn = document.getElementById('tabBtn_' + t);
+        if (sec && btn) {
+          if (t === tab) {
+            sec.classList.remove('hidden');
+            btn.className = 'px-3 py-1.5 rounded-xl whitespace-nowrap cursor-pointer transition-all bg-cyan-500 text-slate-950 font-black shadow-md';
+          } else {
+            sec.classList.add('hidden');
+            btn.className = 'px-3 py-1.5 rounded-xl whitespace-nowrap cursor-pointer transition-all bg-slate-900 text-slate-400 hover:text-white';
+          }
+        }
+      });
+    }
+
+    function filterDrawingCards(query) {
+      const q = query.toLowerCase().trim();
+      const buttons = document.querySelectorAll('#drawingToolsModal button[onclick*="selectDrawingTool"]');
+      buttons.forEach(btn => {
+        const text = btn.innerText.toLowerCase();
+        btn.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+      });
+    }
+
+    function selectDrawingTool(tool) {
+      activeTool = tool;
+      tempDrawingPoints = [];
+      closeDrawingToolsModal();
+
+      const banner = document.getElementById('activeDrawingBanner');
+      const label = document.getElementById('activeToolNameLabel');
+      if (tool !== 'cursor') {
+        banner.classList.remove('hidden');
+        label.innerText = tool.replace('_', ' ');
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function cancelActiveTool() {
+      activeTool = 'cursor';
+      tempDrawingPoints = [];
+      document.getElementById('activeDrawingBanner').classList.add('hidden');
+    }
+
+    function toggleHideDrawings() {
+      isDrawingsHidden = !isDrawingsHidden;
+      drawChart();
+    }
+
+    function clearAllDrawings() {
+      if (confirm('¿Deseas eliminar todos los dibujos del gráfico?')) {
+        drawings = [];
+        document.getElementById('delDrawingsBtn').classList.add('hidden');
+        document.getElementById('activeDrawingsCountBadge').classList.add('hidden');
+        drawChart();
+      }
+    }
+
+    function openIntervalSheetModal() {
+      document.getElementById('intervalSheetModal').classList.remove('hidden');
+    }
+    function closeIntervalSheetModal() {
+      document.getElementById('intervalSheetModal').classList.add('hidden');
+    }
+
+    function setTimeframe(tf) {
+      document.querySelectorAll('.tf-btn').forEach(btn => {
+        if (btn.dataset.tf === tf) {
+          btn.className = 'tf-btn px-2.5 py-1 rounded-lg bg-slate-800 text-white font-black cursor-pointer';
+        } else {
+          btn.className = 'tf-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white cursor-pointer';
+        }
+      });
+      initCandles();
+      drawChart();
+    }
+
+    // Chart Coordinate Conversion Helper
+    function calculatePriceFromY(y, h, minP, maxP) {
+      return Math.round((minP + ((h - 20 - y) / (h - 35)) * (maxP - minP)) * 100) / 100;
+    }
+
+    // Core Canvas Chart Renderer
+    function drawChart() {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      if (!w || !h || candles.length === 0) return;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Compute Visible Slice
+      const totalCount = candles.length;
+      const endIndex = Math.min(totalCount, totalCount - panIndex);
+      const startIndex = Math.max(0, endIndex - visibleCandlesCount);
+      const visibleCandles = candles.slice(startIndex, endIndex);
+      if (visibleCandles.length === 0) return;
+
+      // Grid Lines
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1;
+      for (let y = 20; y < h; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+      for (let x = 40; x < w; x += 65) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+
+      // Min and Max Prices in Visible Window
+      let minP = Infinity, maxP = -Infinity;
+      visibleCandles.forEach(c => {
+        if (c.low < minP) minP = c.low;
+        if (c.high > maxP) maxP = c.high;
+      });
+      markedOrders.forEach(m => {
+        if (m.price < minP) minP = m.price;
+        if (m.price > maxP) maxP = m.price;
+      });
+      if (!isDrawingsHidden) {
+        drawings.forEach(d => {
+          d.points.forEach(p => {
+            if (p.price < minP) minP = p.price;
+            if (p.price > maxP) maxP = p.price;
+          });
+        });
+      }
+
+      const pad = (maxP - minP) * 0.12 || 1;
+      minP -= pad; maxP += pad;
+
+      const getY = (v) => h - ((v - minP) / (maxP - minP)) * (h - 35) - 20;
+      const candleWidth = Math.max(3, Math.floor((w - 70) / visibleCandles.length - 2));
+      const stepX = (w - 70) / visibleCandles.length;
+
+      // Draw EMA 20 (Cyan) and EMA 50 (Gold)
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      visibleCandles.forEach((c, i) => {
+        const x = i * stepX + 8 + candleWidth / 2;
+        const avg = (c.open + c.close + c.high + c.low) / 4;
+        const y = getY(avg);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      visibleCandles.forEach((c, i) => {
+        const x = i * stepX + 8 + candleWidth / 2;
+        const avg = ((c.open + c.close) / 2) - 0.45;
+        const y = getY(avg);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Draw Candlesticks
+      visibleCandles.forEach((c, i) => {
+        const x = i * stepX + 8;
+        const isUp = c.close >= c.open;
+        const color = isUp ? '#10b981' : '#f43f5e';
+
+        // Wick
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x + candleWidth / 2, getY(c.high));
+        ctx.lineTo(x + candleWidth / 2, getY(c.low));
+        ctx.stroke();
+
+        // Body
+        const top = getY(Math.max(c.open, c.close));
+        const bot = getY(Math.min(c.open, c.close));
+        ctx.fillStyle = color;
+        ctx.fillRect(x, top, candleWidth, Math.max(2, bot - top));
+      });
+
+      // Draw Drawings Tools
+      if (!isDrawingsHidden) {
+        drawings.forEach(d => {
+          if (d.type === 'horizontal_line') {
+            const p = d.points[0];
+            if (!p) return;
+            const lineY = getY(p.price);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath(); ctx.moveTo(0, lineY); ctx.lineTo(w - 70, lineY); ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(w - 72, lineY - 10, 70, 20);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px monospace';
+            ctx.fillText(`$${p.price.toFixed(2)}`, w - 68, lineY + 4);
+          }
+          else if (d.type === 'trendline' || d.type === 'ray') {
+            if (d.points.length >= 2) {
+              const p1 = d.points[0];
+              const p2 = d.points[1];
+              const y1 = getY(p1.price);
+              const y2 = getY(p2.price);
+              const x1 = (p1.candleIndex - startIndex) * stepX + 8 + candleWidth / 2;
+              const x2 = (p2.candleIndex - startIndex) * stepX + 8 + candleWidth / 2;
+
+              ctx.strokeStyle = '#38bdf8';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(x1, y1);
+              ctx.lineTo(d.type === 'ray' ? w - 70 : x2, d.type === 'ray' ? y2 + (y2 - y1) : y2);
+              ctx.stroke();
+
+              ctx.fillStyle = '#38bdf8';
+              ctx.beginPath(); ctx.arc(x1, y1, 4, 0, Math.PI * 2); ctx.fill();
+              ctx.beginPath(); ctx.arc(x2, y2, 4, 0, Math.PI * 2); ctx.fill();
+            }
+          }
+          else if (d.type === 'rectangle') {
+            if (d.points.length >= 2) {
+              const p1 = d.points[0];
+              const p2 = d.points[1];
+              const yTop = getY(Math.max(p1.price, p2.price));
+              const yBot = getY(Math.min(p1.price, p2.price));
+              const x1 = Math.min(p1.x, p2.x);
+              const x2 = Math.max(p1.x, p2.x);
+
+              ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+              ctx.fillRect(x1, yTop, x2 - x1, yBot - yTop);
+              ctx.strokeStyle = '#f59e0b';
+              ctx.lineWidth = 1.5;
+              ctx.strokeRect(x1, yTop, x2 - x1, yBot - yTop);
+
+              ctx.fillStyle = '#fbbf24';
+              ctx.font = 'bold 9px sans-serif';
+              ctx.fillText('ZONA OFERTA/DEMANDA', x1 + 5, yTop + 12);
+            }
+          }
+          else if (d.type === 'long_position' || d.type === 'short_position') {
+            const isLong = d.type === 'long_position';
+            const p = d.points[0];
+            if (!p) return;
+            const entryY = getY(p.price);
+            const tpPrice = isLong ? p.price + 4.5 : p.price - 4.5;
+            const slPrice = isLong ? p.price - 2.0 : p.price + 2.0;
+            const tpY = getY(tpPrice);
+            const slY = getY(slPrice);
+
+            const boxX = Math.max(10, p.x - 30);
+            const boxW = 120;
+
+            // Green TP zone
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+            ctx.fillRect(boxX, Math.min(entryY, tpY), boxW, Math.abs(tpY - entryY));
+            ctx.strokeStyle = '#10b981';
+            ctx.strokeRect(boxX, Math.min(entryY, tpY), boxW, Math.abs(tpY - entryY));
+
+            // Red SL zone
+            ctx.fillStyle = 'rgba(244, 63, 94, 0.22)';
+            ctx.fillRect(boxX, Math.min(entryY, slY), boxW, Math.abs(slY - entryY));
+            ctx.strokeStyle = '#f43f5e';
+            ctx.strokeRect(boxX, Math.min(entryY, slY), boxW, Math.abs(slY - entryY));
+
+            // Entry line
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(boxX, entryY); ctx.lineTo(boxX + boxW, entryY); ctx.stroke();
+
+            // Label
+            ctx.fillStyle = isLong ? '#10b981' : '#f43f5e';
+            ctx.fillRect(boxX + 5, entryY - 9, 70, 18);
+            ctx.fillStyle = '#060a12';
+            ctx.font = 'bold 9px monospace';
+            ctx.fillText(`R:R 2.25 ${isLong ? 'LONG' : 'SHORT'}`, boxX + 8, entryY + 3);
+          }
+          else if (d.type === 'fibonacci') {
+            if (d.points.length >= 2) {
+              const highP = Math.max(d.points[0].price, d.points[1].price);
+              const lowP = Math.min(d.points[0].price, d.points[1].price);
+              const diff = highP - lowP;
+              const levels = [
+                { lvl: 0.0, color: '#64748b' },
+                { lvl: 0.236, color: '#f43f5e' },
+                { lvl: 0.382, color: '#fb923c' },
+                { lvl: 0.5, color: '#10b981' },
+                { lvl: 0.618, color: '#f59e0b' },
+                { lvl: 0.786, color: '#38bdf8' },
+                { lvl: 1.0, color: '#64748b' }
+              ];
+
+              levels.forEach(lv => {
+                const price = lowP + diff * lv.lvl;
+                const y = getY(price);
+                ctx.strokeStyle = lv.color;
+                ctx.lineWidth = lv.lvl === 0.618 ? 2 : 1;
+                ctx.setLineDash(lv.lvl === 0.618 ? [] : [3, 2]);
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w - 70, y); ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = lv.color;
+                ctx.font = 'bold 9px monospace';
+                ctx.fillText(`${lv.lvl} ($${price.toFixed(2)})`, 10, y - 3);
+              });
+            }
+          }
+          else if (d.type === 'measure') {
+            if (d.points.length >= 2) {
+              const p1 = d.points[0];
+              const p2 = d.points[1];
+              const y1 = getY(p1.price);
+              const y2 = getY(p2.price);
+              const pips = Math.abs(p2.price - p1.price) * 10;
+              const pct = ((p2.price - p1.price) / p1.price) * 100;
+
+              ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+              ctx.fillRect(Math.min(p1.x, p2.x), Math.min(y1, y2), Math.abs(p2.x - p1.x), Math.abs(y2 - y1));
+              ctx.strokeStyle = '#38bdf8';
+              ctx.strokeRect(Math.min(p1.x, p2.x), Math.min(y1, y2), Math.abs(p2.x - p1.x), Math.abs(y2 - y1));
+
+              ctx.fillStyle = '#ffffff';
+              ctx.font = 'bold 10px monospace';
+              ctx.fillText(`${pips.toFixed(1)} Pips (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`, Math.min(p1.x, p2.x) + 5, Math.min(y1, y2) + 14);
+            }
+          }
+          else if (d.type === 'brush') {
+            if (d.points.length > 1) {
+              ctx.strokeStyle = '#38bdf8';
+              ctx.lineWidth = 2.5;
+              ctx.lineCap = 'round';
+              ctx.beginPath();
+              d.points.forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+              });
+              ctx.stroke();
+            }
+          }
+          else if (d.type === 'arrow_up' || d.type === 'arrow_down') {
+            const p = d.points[0];
+            if (!p) return;
+            const y = getY(p.price);
+            const x = (p.candleIndex - startIndex) * stepX + 8 + candleWidth / 2;
+            ctx.fillStyle = d.type === 'arrow_up' ? '#10b981' : '#f43f5e';
+            ctx.beginPath();
+            if (d.type === 'arrow_up') {
+              ctx.moveTo(x, y - 18); ctx.lineTo(x - 8, y - 6); ctx.lineTo(x + 8, y - 6);
+            } else {
+              ctx.moveTo(x, y + 18); ctx.lineTo(x - 8, y + 6); ctx.lineTo(x + 8, y + 6);
+            }
+            ctx.fill();
+          }
+        });
+      }
+
+      // Draw Marked Orders
+      markedOrders.forEach(m => {
+        const lineY = getY(m.price);
+        const color = m.type === 'buy' ? '#10b981' : '#f43f5e';
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(0, lineY); ctx.lineTo(w - 70, lineY); ctx.stroke();
+        ctx.setLineDash([]);
+
+        const candleX = (m.candleIndex - startIndex) * stepX + 8 + candleWidth / 2;
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(candleX, lineY, 5, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillRect(candleX - 35, lineY - 24, 70, 18);
+        ctx.fillStyle = '#060a12';
+        ctx.font = 'bold 9px monospace';
+        ctx.fillText(m.type === 'buy' ? '▲ COMPRA' : '▼ VENTA', candleX - 30, lineY - 12);
+
+        ctx.fillStyle = color;
+        ctx.fillRect(w - 72, lineY - 10, 70, 20);
+        ctx.fillStyle = '#060a12';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText(`$${m.price.toFixed(2)}`, w - 68, lineY + 4);
+      });
+
+      // Beacon Price Line (Current Price)
+      const currentY = getY(currentPrice);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(0, currentY); ctx.lineTo(w - 70, currentY); ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(w - 72, currentY - 11, 70, 22);
+      ctx.fillStyle = '#060a12';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText(`$${currentPrice.toFixed(2)}`, w - 68, currentY + 4);
+
+      // Price Ticks on Right Axis
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px monospace';
+      for (let i = 0; i <= 5; i++) {
+        const p = minP + (maxP - minP) * (i / 5);
+        ctx.fillText(`$${p.toFixed(0)}`, w - 65, getY(p) + 3);
+      }
+    }
+
+    // Interactive Touch & Mouse Event Handlers
+    let pressTimer = null;
+    let selectedPoint = null;
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) handleZoomIn();
+      else handleZoomOut();
+    }, { passive: false });
+
+    canvas.addEventListener('touchstart', (e) => {
+      const rect = canvas.getBoundingClientRect();
+
+      // 2-finger pinch to zoom
+      if (e.touches.length === 2) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        pinchStartDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        return;
+      }
+
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      touchStartPos = { x, y };
+      lastPanTouchX = touch.clientX;
+
+      if (activeTool !== 'cursor') {
+        handleDrawingClick(x, y, rect.width, rect.height);
+        return;
+      }
+
+      if (pressTimer) clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => {
+        handleCandleHeld(x, y, rect);
+      }, 280);
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      // 2-finger pinch
+      if (e.touches.length === 2 && pinchStartDist !== null) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const curDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        const diff = curDist - pinchStartDist;
+        if (Math.abs(diff) > 15) {
+          if (diff > 0) handleZoomIn();
+          else handleZoomOut();
+          pinchStartDist = curDist;
+        }
+        return;
+      }
+
+      if (!touchStartPos) return;
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const curX = touch.clientX - rect.left;
+      const curY = touch.clientY - rect.top;
+
+      if (activeTool === 'brush') {
+        const last = drawings[drawings.length - 1];
+        if (last && last.type === 'brush') {
+          last.points.push({ x: curX, y: curY, price: currentPrice, candleIndex: 0 });
+          drawChart();
+        }
+        return;
+      }
+
+      const dist = Math.hypot(curX - touchStartPos.x, curY - touchStartPos.y);
+      if (dist > 8) {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+
+        // Horizontal pan timeline
+        if (lastPanTouchX !== null && activeTool === 'cursor') {
+          const dx = touch.clientX - lastPanTouchX;
+          if (Math.abs(dx) > 4) {
+            const shift = dx > 0 ? 1 : -1;
+            panIndex = Math.max(0, Math.min(candles.length - visibleCandlesCount, panIndex + shift));
+            lastPanTouchX = touch.clientX;
+            drawChart();
+          }
+        }
+      }
+    });
+
+    canvas.addEventListener('touchend', () => {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      touchStartPos = null;
+      pinchStartDist = null;
+      lastPanTouchX = null;
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (activeTool !== 'cursor') {
+        handleDrawingClick(x, y, rect.width, rect.height);
+      } else {
+        handleCandleHeld(x, y, rect);
+      }
+    });
+
+    function handleDrawingClick(x, y, w, h) {
+      const totalCount = candles.length;
+      const endIndex = Math.min(totalCount, totalCount - panIndex);
+      const startIndex = Math.max(0, endIndex - visibleCandlesCount);
+      const visibleCandles = candles.slice(startIndex, endIndex);
+
+      let minP = Infinity, maxP = -Infinity;
+      visibleCandles.forEach(c => {
+        if (c.low < minP) minP = c.low;
+        if (c.high > maxP) maxP = c.high;
+      });
+      const pad = (maxP - minP) * 0.12 || 1;
+      minP -= pad; maxP += pad;
+
+      const price = calculatePriceFromY(y, h, minP, maxP);
+      const stepX = (w - 70) / visibleCandlesCount;
+      const localIndex = Math.max(0, Math.min(visibleCandlesCount - 1, Math.floor((x - 8) / stepX)));
+      const candleIndex = startIndex + localIndex;
+      const point = { x, y, price, candleIndex };
+
+      if (activeTool === 'horizontal_line' || activeTool === 'arrow_up' || activeTool === 'arrow_down' || activeTool === 'long_position' || activeTool === 'short_position') {
+        drawings.push({ id: 'd_' + Date.now(), type: activeTool, points: [point] });
+        cancelActiveTool();
+        document.getElementById('delDrawingsBtn').classList.remove('hidden');
+        drawChart();
+        return;
+      }
+
+      if (activeTool === 'brush') {
+        drawings.push({ id: 'd_' + Date.now(), type: 'brush', points: [point] });
+        document.getElementById('delDrawingsBtn').classList.remove('hidden');
+        drawChart();
+        return;
+      }
+
+      // 2-point tools (trendline, ray, rectangle, measure, fibonacci)
+      if (tempDrawingPoints.length === 0) {
+        tempDrawingPoints = [point];
+      } else {
+        const p1 = tempDrawingPoints[0];
+        drawings.push({ id: 'd_' + Date.now(), type: activeTool, points: [p1, point] });
+        tempDrawingPoints = [];
+        cancelActiveTool();
+        document.getElementById('delDrawingsBtn').classList.remove('hidden');
+        drawChart();
+      }
+    }
+
+    function handleCandleHeld(x, y, rect) {
+      const w = rect.width;
+      const h = rect.height;
+      const totalCount = candles.length;
+      const endIndex = Math.min(totalCount, totalCount - panIndex);
+      const startIndex = Math.max(0, endIndex - visibleCandlesCount);
+      const visibleCandles = candles.slice(startIndex, endIndex);
+
+      let minP = Infinity, maxP = -Infinity;
+      visibleCandles.forEach(c => {
+        if (c.low < minP) minP = c.low;
+        if (c.high > maxP) maxP = c.high;
+      });
+      const pad = (maxP - minP) * 0.12 || 1;
+      minP -= pad; maxP += pad;
+
+      const stepX = (w - 70) / visibleCandlesCount;
+      const localIndex = Math.max(0, Math.min(visibleCandlesCount - 1, Math.floor((x - 8) / stepX)));
+      const candleIndex = startIndex + localIndex;
+      const price = calculatePriceFromY(y, h, minP, maxP);
+
+      selectedPoint = { x, y, price, candleIndex };
+
+      try { if (navigator.vibrate) navigator.vibrate(30); } catch(e){}
+
+      const popup = document.getElementById('quickOrderPopup');
+      document.getElementById('popupCandleLabel').innerText = `Vela #${candleIndex + 1}`;
+      document.getElementById('popupPriceLabel').innerText = `$${price.toFixed(2)}`;
+      popup.style.left = `${Math.max(10, Math.min(rect.width - 200, x - 70))}px`;
+      popup.style.top = `${Math.max(10, Math.min(240, y - 65))}px`;
+      popup.classList.remove('hidden');
+    }
+
+    function cancelMarker() {
+      document.getElementById('quickOrderPopup').classList.add('hidden');
+    }
+
+    function confirmMarkedTrade(type) {
+      if (!selectedPoint) return;
+      markedOrders.push({
+        id: 'm_' + Date.now(),
+        candleIndex: selectedPoint.candleIndex,
+        price: selectedPoint.price,
+        type: type
+      });
+      document.getElementById('clearMarksBtn').classList.remove('hidden');
+      cancelMarker();
+      drawChart();
+      openOrderModal(type);
+    }
+
+    function clearMarks() {
+      markedOrders = [];
+      document.getElementById('clearMarksBtn').classList.add('hidden');
+      drawChart();
+    }
+
+    // Tick price
+    setInterval(() => {
+      const vol = currentPrice * 0.0002;
+      const delta = (Math.random() - 0.498) * vol;
+      currentPrice = Math.round((currentPrice + delta) * 100) / 100;
+      candles[candles.length - 1].close = currentPrice;
+      document.getElementById('sellPriceDisplay').innerText = (currentPrice - 0.27).toFixed(2);
+      document.getElementById('buyPriceDisplay').innerText = (currentPrice + 0.28).toFixed(2);
+      drawChart();
+    }, 600);
+
+    // Tab switcher
+    function switchTab(tab) {
+      ['inicio', 'mercados', 'trading', 'cartera', 'mas'].forEach(t => {
+        const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+        const nav = document.getElementById('nav' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (t === tab) {
+          view.classList.remove('hidden');
+          nav.className = 'flex flex-col items-center justify-center flex-1 py-1 text-emerald-400 font-bold cursor-pointer';
+        } else {
+          view.classList.add('hidden');
+          nav.className = 'flex flex-col items-center justify-center flex-1 py-1 text-slate-400 cursor-pointer';
+        }
+      });
+      if (tab === 'trading') setTimeout(drawChart, 30);
+      if (tab === 'mercados') renderMarkets();
+      if (tab === 'cartera') renderPositions();
+    }
+
+    function renderMarkets() {
+      const cont = document.getElementById('marketsListContainer');
+      cont.innerHTML = ASSETS.map(a => `
+        <div onclick="selectMarketAsset('${a.symbol}')" class="p-3 flex justify-between items-center hover:bg-slate-900 cursor-pointer rounded-xl">
+          <div>
+            <div class="font-bold text-white">${a.symbol}</div>
+            <div class="text-xs text-slate-400">${a.name}</div>
+          </div>
+          <div class="text-right font-mono">
+            <div class="font-bold text-white">$${a.price.toFixed(2)}</div>
+            <div class="text-xs ${a.change >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${a.change >= 0 ? '+' : ''}${a.change}%</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectMarketAsset(sym) {
+      currentAsset = ASSETS.find(x => x.symbol === sym) || ASSETS[0];
+      currentPrice = currentAsset.price;
+      document.getElementById('currentAssetSymbol').innerText = currentAsset.symbol;
+      document.getElementById('aiAssetLabel').innerText = currentAsset.symbol;
+      initCandles();
+      switchTab('trading');
+    }
+
+    function openOrderModal(type) {
+      orderType = type;
+      document.getElementById('orderModalTitle').innerText = type === 'buy' ? 'Orden de COMPRA (Long)' : 'Orden de VENTA (Short)';
+      const btn = document.getElementById('orderConfirmBtn');
+      btn.className = type === 'buy' 
+        ? 'w-full mt-4 py-3.5 rounded-2xl font-black text-sm uppercase bg-emerald-500 text-slate-950 cursor-pointer'
+        : 'w-full mt-4 py-3.5 rounded-2xl font-black text-sm uppercase bg-rose-500 text-white cursor-pointer';
+      btn.innerText = type === 'buy' ? 'Confirmar Compra' : 'Confirmar Venta';
+      document.getElementById('orderModal').classList.remove('hidden');
+    }
+    function closeOrderModal() { document.getElementById('orderModal').classList.add('hidden'); }
+
+    function updateLots(val) {
+      currentLots = Math.max(0.01, Math.min(10, Number(val) || 0.01));
+      document.getElementById('orderLotsInput').value = currentLots;
+      document.getElementById('marginReqDisplay').innerText = `Margen: ~$${(currentLots * 2000).toFixed(2)}`;
+    }
+    function adjustOrderLots(d) { updateLots(currentLots + d); }
+
+    function executeOrderConfirm() {
+      const activeBal = isDemo ? demoBalance : realBalance;
+      const margin = currentLots * 2000;
+      if (margin > activeBal) { alert('Saldo insuficiente para el margen'); return; }
+
+      if (isDemo) demoBalance -= margin; else realBalance -= margin;
+
+      activePositions.unshift({
+        id: 'pos_' + Date.now(),
+        symbol: currentAsset.symbol,
+        type: orderType,
+        lots: currentLots,
+        entryPrice: currentPrice
+      });
+
+      updateUI();
+      closeOrderModal();
+      alert(`¡Orden de ${orderType === 'buy' ? 'COMPRA' : 'VENTA'} abierta con éxito!`);
+      switchTab('cartera');
+    }
+
+    function renderPositions() {
+      const cont = document.getElementById('positionsContainer');
+      const badge = document.getElementById('navCarteraBadge');
+      if (activePositions.length === 0) {
+        badge.classList.add('hidden');
+        cont.innerHTML = `
+          <div class="py-16 text-center text-xs text-slate-400">
+            No tienes posiciones abiertas en este momento.
+            <button onclick="switchTab('trading')" class="block mx-auto mt-2 px-5 py-2 bg-white text-slate-950 font-black rounded-xl">Abrir una posición</button>
+          </div>
+        `;
+      } else {
+        badge.innerText = activePositions.length;
+        badge.classList.remove('hidden');
+        cont.innerHTML = activePositions.map(p => {
+          const diff = p.type === 'buy' ? currentPrice - p.entryPrice : p.entryPrice - currentPrice;
+          const pnl = (diff * p.lots * 100);
+          return `
+            <div class="bg-[#0b1325] border border-slate-800 rounded-2xl p-4 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-black text-sm">${p.symbol} (${p.type === 'buy' ? 'COMPRA' : 'VENTA'} ${p.lots}L)</span>
+                <span class="font-mono font-bold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)} USD</span>
+              </div>
+              <div class="flex justify-between text-xs text-slate-400 font-mono">
+                <span>Entrada: $${p.entryPrice.toFixed(2)}</span>
+                <span>Actual: $${currentPrice.toFixed(2)}</span>
+              </div>
+              <button onclick="closePos('${p.id}')" class="w-full py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold text-white hover:bg-slate-800 cursor-pointer">
+                Cerrar Posición
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function closePos(id) {
+      const p = activePositions.find(x => x.id === id);
+      if (!p) return;
+      const diff = p.type === 'buy' ? currentPrice - p.entryPrice : p.entryPrice - currentPrice;
+      const pnl = (diff * p.lots * 100);
+      const ret = p.lots * 2000 + pnl;
+      if (isDemo) demoBalance += ret; else realBalance += ret;
+      activePositions = activePositions.filter(x => x.id !== id);
+      updateUI();
+      renderPositions();
+      alert(`Posición cerrada: ${pnl >= 0 ? `+$${pnl.toFixed(2)} USD` : `-$${Math.abs(pnl).toFixed(2)} USD`}`);
+    }
+
+    function updateUI() {
+      const bal = isDemo ? demoBalance : realBalance;
+      document.getElementById('topBalanceText').innerText = `$${bal.toFixed(2)}`;
+      document.getElementById('homeBalanceDisplay').innerText = `$${bal.toFixed(2)}`;
+      document.getElementById('modalDemoBal').innerText = `$${demoBalance.toFixed(2)}`;
+      document.getElementById('modalRealBal').innerText = `$${realBalance.toFixed(2)}`;
+      document.getElementById('accountTypePill').innerText = isDemo ? 'D' : 'R';
+    }
+
+    function openAccountModal() { document.getElementById('accountModal').classList.remove('hidden'); }
+    function closeAccountModal() { document.getElementById('accountModal').classList.add('hidden'); }
+    function selectAccountType(demo) {
+      isDemo = demo;
+      updateUI();
+      closeAccountModal();
+    }
+
+    function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
+    function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+    function unlockAdmin() {
+      const e = document.getElementById('adminEmail').value.trim();
+      const p = document.getElementById('adminPass').value.trim();
+      if (e === 'kervinjose022@gmail.com' && p === '1910') {
+        document.getElementById('adminAuthGate').classList.add('hidden');
+        document.getElementById('adminPanelContent').classList.remove('hidden');
+        renderAdmin();
+      } else { alert('Credenciales incorrectas'); }
+    }
+
+    function renderAdmin() {
+      const users = [
+        { name: 'Kervin José (Admin)', email: 'kervinjose022@gmail.com', bal: 5000 },
+        { name: 'Carlos Trader', email: 'carlos@trader.com', bal: 1250 },
+        { name: 'María Inversora', email: 'maria@trader.com', bal: 450 }
+      ];
+      document.getElementById('adminUsersTbody').innerHTML = users.map(u => `
+        <tr>
+          <td class="p-2">${u.name}<br><span class="text-slate-500">${u.email}</span></td>
+          <td class="p-2 font-mono text-emerald-400 font-bold">$${u.bal}</td>
+          <td class="p-2"><button onclick="alert('Recarga realizada')" class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded">+$100</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function openDepositModal() {
+      const amt = prompt('¿Cuánto saldo deseas depositar (USD)?', '100');
+      if (amt && !isNaN(Number(amt))) {
+        realBalance += Number(amt);
+        updateUI();
+        alert(`¡Depósito de $${amt} USD acreditado a tu cuenta Real!`);
+      }
+    }
+
+    // APK Modal Functions
+    let apkDownloadUrl = localStorage.getItem('zetatrade_apk_url') || 'https://www.webintoapp.com';
+    let isEditingApkUrl = false;
+
+    function openApkModal() {
+      const input = document.getElementById('apkTargetUrlInput');
+      if (input) input.value = apkDownloadUrl;
+      document.getElementById('apkModal').classList.remove('hidden');
+    }
+
+    function closeApkModal() {
+      document.getElementById('apkModal').classList.add('hidden');
+      isEditingApkUrl = false;
+      const input = document.getElementById('apkTargetUrlInput');
+      if (input) input.readOnly = true;
+      const btn = document.getElementById('editApkLinkBtn');
+      if (btn) btn.innerText = 'Cambiar';
+    }
+
+    function toggleEditApkUrl() {
+      const input = document.getElementById('apkTargetUrlInput');
+      const btn = document.getElementById('editApkLinkBtn');
+      if (!input || !btn) return;
+
+      if (!isEditingApkUrl) {
+        input.readOnly = false;
+        input.focus();
+        input.select();
+        btn.innerText = 'Guardar';
+        btn.className = 'text-emerald-400 hover:text-emerald-300 text-[10px] font-bold cursor-pointer';
+        isEditingApkUrl = true;
+      } else {
+        const val = input.value.trim();
+        if (val) {
+          apkDownloadUrl = val;
+          try { localStorage.setItem('zetatrade_apk_url', val); } catch(e){}
+        }
+        input.readOnly = true;
+        btn.innerText = 'Cambiar';
+        btn.className = 'text-cyan-400 hover:text-cyan-300 text-[10px] font-bold cursor-pointer';
+        isEditingApkUrl = false;
+        alert('¡Enlace de descarga guardado!');
+      }
+    }
+
+    function copyApkLink() {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(apkDownloadUrl);
+      }
+      const btn = document.getElementById('copyApkBtn');
+      if (btn) {
+        const oldText = btn.innerText;
+        btn.innerText = 'Listo ✓';
+        btn.className = 'px-2.5 py-1 bg-emerald-500 text-slate-950 rounded-lg font-bold text-[11px] cursor-pointer transition-all active:scale-95 shrink-0';
+        setTimeout(() => {
+          btn.innerText = oldText;
+          btn.className = 'px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold text-[11px] cursor-pointer transition-all active:scale-95 shrink-0';
+        }, 2000);
+      }
+    }
+
+    function downloadApkDirect() {
+      if (apkDownloadUrl && apkDownloadUrl.startsWith('http')) {
+        window.open(apkDownloadUrl, '_blank');
+        closeApkModal();
+      } else {
+        toggleEditApkUrl();
+      }
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>

@@ -319,7 +319,7 @@ export const ZetaStore: React.FC = () => {
   const cartTotalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#070c17] text-slate-100 font-sans selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-emerald-600 selection:text-white">
       
       {/* Top Navbar Header */}
       <ZetaHeader 
@@ -346,11 +346,11 @@ export const ZetaStore: React.FC = () => {
       />
 
       {/* Main Content Area - Products Start Directly Here */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full space-y-4">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-7 w-full space-y-5">
         
         {/* Quick Search Chips & Search bar helper */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <span className="text-[11px] font-bold text-slate-400 shrink-0 mr-1">Rápido:</span>
+          <span className="text-[11px] font-bold text-slate-500 shrink-0 mr-1">Rápido:</span>
           {[
             { label: '🧱 Bloques', query: 'bloque' },
             { label: '👟 Zapatillas', query: 'sneaker' },
@@ -376,7 +376,7 @@ export const ZetaStore: React.FC = () => {
                   setFilterOnlyFlash(false);
                 }
               }}
-              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-xs font-medium whitespace-nowrap cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-medium whitespace-nowrap cursor-pointer transition-colors"
             >
               {tag.label}
             </button>
@@ -387,7 +387,7 @@ export const ZetaStore: React.FC = () => {
                 setSearchQuery('');
                 setFilterOnlyFlash(false);
               }}
-              className="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold whitespace-nowrap cursor-pointer hover:bg-slate-700"
+              className="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold whitespace-nowrap cursor-pointer hover:bg-rose-100"
             >
               ✕ Limpiar filtros
             </button>
@@ -395,16 +395,16 @@ export const ZetaStore: React.FC = () => {
         </div>
 
         {/* Filter and Sorting Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-baseline gap-2.5">
               <span>{categories.find(c => c.id === selectedCategory)?.name || 'Catálogo'}</span>
-              <span className="text-xs font-mono font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">
-                {filteredProducts.length} productos
+              <span className="text-xs font-mono font-semibold text-slate-500 tabular-nums">
+                · {filteredProducts.length} productos
               </span>
             </h2>
             {isWholesaleMode && (
-              <p className="text-xs text-amber-400 font-medium mt-0.5 flex items-center gap-1">
+              <p className="text-xs text-amber-700 font-semibold mt-0.5 flex items-center gap-1">
                 <Building2 className="w-3.5 h-3.5" />
                 Precios al mayor activos por volumen
               </p>
@@ -419,7 +419,7 @@ export const ZetaStore: React.FC = () => {
                   setAdminInitialTab('productos');
                   setIsAdminOpen(true);
                 }}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all flex items-center gap-1 cursor-pointer shadow-md"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 cursor-pointer shadow-sm"
               >
                 <span>+ Subir Producto / Catálogo</span>
               </button>
@@ -428,29 +428,29 @@ export const ZetaStore: React.FC = () => {
             {/* Flash Deal Filter Toggle */}
             <button
               onClick={() => setFilterOnlyFlash(!filterOnlyFlash)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer ${
                 filterOnlyFlash 
-                  ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md font-bold' 
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Flame className="w-3.5 h-3.5 text-amber-400" />
+              <Flame className={`w-3.5 h-3.5 ${filterOnlyFlash ? 'text-amber-300' : 'text-amber-500'}`} />
               <span>Solo Ofertas</span>
             </button>
 
             {/* Sort Dropdown */}
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300">
+            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-600 shadow-xs">
               <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="bg-transparent text-white outline-none cursor-pointer font-bold"
+                className="bg-transparent text-slate-900 outline-none cursor-pointer font-semibold"
               >
-                <option value="destacados" className="bg-slate-900">Destacados</option>
-                <option value="ventas" className="bg-slate-900">Más Vendidos</option>
-                <option value="rating" className="bg-slate-900">Mejor Calificados</option>
-                <option value="precio_bajo" className="bg-slate-900">Menor Precio</option>
-                <option value="precio_alto" className="bg-slate-900">Mayor Precio</option>
+                <option value="destacados" className="bg-white text-slate-900">Destacados</option>
+                <option value="ventas" className="bg-white text-slate-900">Más Vendidos</option>
+                <option value="rating" className="bg-white text-slate-900">Mejor Calificados</option>
+                <option value="precio_bajo" className="bg-white text-slate-900">Menor Precio</option>
+                <option value="precio_alto" className="bg-white text-slate-900">Mayor Precio</option>
               </select>
             </div>
           </div>
@@ -460,8 +460,8 @@ export const ZetaStore: React.FC = () => {
         {filteredProducts.length === 0 ? (
           <div className="py-20 text-center space-y-3">
             <div className="text-4xl">🔍</div>
-            <h3 className="font-bold text-lg text-white">No encontramos productos con ese filtro</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            <h3 className="font-bold text-lg text-slate-900">No encontramos productos con ese filtro</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
               Prueba con otra palabra clave o selecciona otra categoría arriba.
             </p>
             <button
@@ -470,7 +470,7 @@ export const ZetaStore: React.FC = () => {
                 setSelectedCategory('all');
                 setFilterOnlyFlash(false);
               }}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl cursor-pointer"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl cursor-pointer transition-colors"
             >
               Restablecer Filtros
             </button>
@@ -492,46 +492,33 @@ export const ZetaStore: React.FC = () => {
           </div>
         )}
 
-        {/* Feature Highlights Strip */}
-        <div className="pt-8 border-t border-slate-800/80 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 rounded-2xl bg-[#090f1e] border border-slate-800 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5" />
+        {/* Feature Highlights Strip - Envíos Rápidos & Soporte WhatsApp */}
+        <div className="pt-8 border-t border-slate-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 border border-emerald-200/80 flex items-center justify-center shrink-0">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-bold text-sm text-slate-900">Envíos Rápidos</div>
+                <div className="text-xs text-slate-500 mt-0.5">Entrega segura en 24-48 horas</div>
+              </div>
             </div>
-            <div>
-              <div className="font-bold text-xs text-white">Envíos Rápidos</div>
-              <div className="text-[10px] text-slate-400">Entrega en 24-48 horas</div>
-            </div>
-          </div>
 
-          <div className="p-4 rounded-2xl bg-[#090f1e] border border-slate-800 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-bold text-xs text-white">Garantía Total</div>
-              <div className="text-[10px] text-slate-400">30 días de devolución</div>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-[#090f1e] border border-slate-800 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center shrink-0">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-bold text-xs text-white">Precios Mayoristas</div>
-              <div className="text-[10px] text-slate-400">Descuentos por volumen</div>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-[#090f1e] border border-slate-800 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-              <Headphones className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-bold text-xs text-white">Soporte WhatsApp</div>
-              <div className="text-[10px] text-slate-400">Atención personalizada</div>
-            </div>
+            <a
+              href="https://wa.me/584262139920?text=Hola%20ZetaMall,%20necesito%20atenci%C3%B3n%20personalizada"
+              target="_blank"
+              rel="noreferrer"
+              className="p-4 sm:p-5 rounded-2xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-200 hover:border-emerald-300 flex items-center gap-3.5 transition-colors cursor-pointer"
+            >
+              <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 border border-emerald-200/80 flex items-center justify-center shrink-0">
+                <Headphones className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-bold text-sm text-slate-900">Soporte WhatsApp</div>
+                <div className="text-xs text-slate-500 mt-0.5">Atención personalizada · 0426-2139920</div>
+              </div>
+            </a>
           </div>
         </div>
 
@@ -543,23 +530,23 @@ export const ZetaStore: React.FC = () => {
         target="_blank"
         rel="noreferrer"
         title="Chatear con soporte en WhatsApp"
-        className="fixed bottom-5 right-5 z-40 bg-emerald-500 hover:bg-emerald-400 text-slate-950 p-3.5 rounded-full shadow-2xl shadow-emerald-500/30 flex items-center gap-2 font-bold text-xs cursor-pointer active:scale-95 transition-all group"
+        className="fixed bottom-5 right-5 z-40 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-full shadow-lg shadow-emerald-600/25 flex items-center gap-2 font-bold text-xs cursor-pointer active:scale-95 transition-all group"
       >
-        <MessageCircle className="w-5 h-5 fill-slate-950" />
+        <MessageCircle className="w-5 h-5" />
         <span className="hidden sm:inline">WhatsApp: 0426-2139920</span>
       </a>
 
       {/* Footer */}
-      <footer className="bg-[#050811] border-t border-slate-800 text-slate-400 py-8 px-4 text-center text-xs space-y-3">
-        <div className="flex items-center justify-center gap-2">
-          <span className="font-black text-white text-sm">Zeta<span className="text-emerald-400">Mall</span></span>
-          <span>·</span>
-          <span>Tienda Oficial con Envíos Rápidos y Precios al Mayor</span>
+      <footer className="bg-slate-50 border-t border-slate-200 text-slate-600 py-8 px-4 text-center text-xs space-y-2.5">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <span className="font-black text-slate-900 text-sm">Zeta<span className="text-emerald-600">Mall</span></span>
+          <span className="text-slate-400">·</span>
+          <span>Tienda Oficial con Envíos Rápidos y Soporte WhatsApp</span>
         </div>
         <p className="text-[11px] text-slate-500 max-w-md mx-auto">
-          Calidad garantizada en todos los productos, atención directa vía WhatsApp y despachos seguros.
+          Atención directa vía WhatsApp al 0426-2139920 y despachos seguros a todo el país.
         </p>
-        <div className="text-[10px] text-slate-600">
+        <div className="text-[11px] text-slate-400">
           © 2026 ZetaMall. Todos los derechos reservados.
         </div>
       </footer>

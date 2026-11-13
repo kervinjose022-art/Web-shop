@@ -204,10 +204,10 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
       }
     }
 
-    // Use uploaded images or fallback
+    // Use uploaded images or ZetaMall logo fallback
     const finalImages = uploadedImages.length > 0 
       ? uploadedImages 
-      : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80'];
+      : ['/zetamall_logo.png'];
 
     const product: Product = {
       id: `prod_custom_${Date.now()}`,
@@ -227,7 +227,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
       isFlashDeal: computedDiscount > 0,
       isFeaturedInBanner: showIn70Discount,
       description: 'Producto de alta calidad verificado por ZetaMall con despacho y garantía.',
-      features: ['Garantía de calidad oficial', 'Envío rápido asegurado por WhatsApp']
+      features: ['Calidad verificada en catálogo', 'Envío rápido asegurado por WhatsApp']
     };
 
     onAddProduct(product);
@@ -270,18 +270,18 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
   const totalSales = orders.reduce((sum, o) => sum + o.total, 0) + 4820.00;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-[#0b1324] border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl text-slate-100 overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl text-slate-900 overflow-hidden">
         
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-[#080d19]">
+        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700">
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm sm:text-base text-white">Panel de Administración ZetaMall</h3>
-              <p className="text-[11px] text-slate-400 font-mono">
+              <h3 className="font-bold text-sm sm:text-base text-slate-900">Panel de Administración ZetaMall</h3>
+              <p className="text-[11px] text-slate-500 font-mono">
                 {isAdminAuthenticated ? 'kervinjose022@gmail.com · Administrador Activo' : 'Acceso Restringido'}
               </p>
             </div>
@@ -291,7 +291,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               <button
                 onClick={handleAdminLogout}
                 title="Cerrar Sesión Admin"
-                className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                className="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-rose-600 text-xs flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Salir</span>
@@ -299,7 +299,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
             )}
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+              className="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -309,50 +309,50 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
         {/* If NOT Authenticated: Show Login Barrier */}
         {!isAdminAuthenticated ? (
           <div className="p-6 sm:p-10 flex flex-col items-center justify-center text-center max-w-md mx-auto space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-lg">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-xs">
               <Lock className="w-7 h-7 stroke-[2.5]" />
             </div>
             
             <div className="space-y-1">
-              <h4 className="text-xl font-bold text-white">Acceso de Administrador</h4>
-              <p className="text-xs text-slate-400">
+              <h4 className="text-xl font-bold text-slate-900">Acceso de Administrador</h4>
+              <p className="text-xs text-slate-500">
                 Introduce tu correo y contraseña maestra para ingresar al panel de control de ventas, catálogo y clientes.
               </p>
             </div>
 
             {loginError && (
-              <div className="w-full p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-medium">
+              <div className="w-full p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
                 {loginError}
               </div>
             )}
 
             <form onSubmit={handleAdminLogin} className="w-full space-y-3 text-left text-xs">
               <div>
-                <label className="text-[11px] font-bold text-slate-400 block mb-1">Correo de Administrador</label>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">Correo de Administrador</label>
                 <input 
                   type="email" 
                   required
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
-                  className="w-full bg-[#080d19] border border-slate-800 rounded-xl px-3 py-2.5 text-white outline-none focus:border-emerald-500 transition-colors font-mono"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 outline-none focus:bg-white focus:border-emerald-600 transition-colors font-mono"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-400 block mb-1">Contraseña</label>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">Contraseña</label>
                 <input 
                   type="password" 
                   required
                   placeholder="••••••••"
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
-                  className="w-full bg-[#080d19] border border-slate-800 rounded-xl px-3 py-2.5 text-white outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-900 outline-none focus:bg-white focus:border-emerald-600 transition-colors"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span>Ingresar al Panel de Control</span>
@@ -363,11 +363,11 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
           /* AUTHENTICATED ADMIN DASHBOARD */
           <>
             {/* Navigation Tabs */}
-            <div className="bg-[#080d19] border-b border-slate-800 px-5 flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar">
+            <div className="bg-slate-50 border-b border-slate-200 px-5 flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar">
               <button
                 onClick={() => setActiveTab('productos')}
                 className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
-                  activeTab === 'productos' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'productos' ? 'border-emerald-600 text-emerald-700 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
                 }`}
               >
                 📦 Productos ({products.length})
@@ -375,7 +375,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               <button
                 onClick={() => setActiveTab('banner70')}
                 className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
-                  activeTab === 'banner70' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'banner70' ? 'border-emerald-600 text-emerald-700 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
                 }`}
               >
                 📁 Catálogos
@@ -383,7 +383,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               <button
                 onClick={() => setActiveTab('resumen')}
                 className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
-                  activeTab === 'resumen' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'resumen' ? 'border-emerald-600 text-emerald-700 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
                 }`}
               >
                 📊 Métricas
@@ -391,7 +391,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               <button
                 onClick={() => setActiveTab('pedidos')}
                 className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
-                  activeTab === 'pedidos' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'pedidos' ? 'border-emerald-600 text-emerald-700 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
                 }`}
               >
                 🛍️ Pedidos ({orders.length})
@@ -399,7 +399,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               <button
                 onClick={() => setActiveTab('clientes')}
                 className={`py-3 px-3 border-b-2 whitespace-nowrap cursor-pointer transition-all ${
-                  activeTab === 'clientes' ? 'border-emerald-400 text-emerald-400 font-bold' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'clientes' ? 'border-emerald-600 text-emerald-700 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
                 }`}
               >
                 👥 Clientes ({registeredUsers.length})
@@ -407,22 +407,22 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 bg-white">
 
               {/* TAB: GESTIÓN DE CATÁLOGOS Y PRODUCTOS DESTACADOS */}
               {activeTab === 'banner70' && (
                 <div className="space-y-6">
                   {/* Catalog Visibility & Create New Catalog */}
-                  <div className="bg-[#080d19] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                      <div className="flex items-center gap-2 font-bold text-sm text-white">
-                        <Layers className="w-4 h-4 text-emerald-400" />
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                        <Layers className="w-4 h-4 text-emerald-600" />
                         <span>Catálogos de la Tienda</span>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-400">
-                      Crea nuevos catálogos o selecciona cuál catálogo quieres que se abra primero en la tienda:
+                    <p className="text-xs text-slate-600">
+                      Crea nuevos catálogos o gestiona las categorías visibles de la tienda:
                     </p>
 
                     <div className="flex flex-wrap gap-2">
@@ -436,30 +436,30 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                             onClick={() => handleToggleCatalogInBanner(cat.id)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
                               isActive
-                                ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
-                                : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
+                                ? 'bg-emerald-50 border-emerald-500 text-emerald-800'
+                                : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'
                             }`}
                           >
-                            {isActive ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Plus className="w-3.5 h-3.5" />}
+                            {isActive ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Plus className="w-3.5 h-3.5" />}
                             <span>{cat.name}</span>
-                            <span className="text-[10px] opacity-70 font-mono">({count})</span>
+                            <span className="text-[10px] opacity-70 font-mono tabular-nums">({count})</span>
                           </button>
                         );
                       })}
                     </div>
 
                     {/* Quick create catalog */}
-                    <form onSubmit={handleCreateQuickCatalog} className="flex items-center gap-2 pt-2 border-t border-slate-800">
+                    <form onSubmit={handleCreateQuickCatalog} className="flex items-center gap-2 pt-2 border-t border-slate-200">
                       <input
                         type="text"
                         placeholder="Crear nuevo catálogo (Ej. Bloques, Cemento, Celulares...)"
                         value={newCatalogName}
                         onChange={(e) => setNewCatalogName(e.target.value)}
-                        className="flex-1 bg-[#0b1324] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-emerald-500"
+                        className="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-400 outline-none focus:border-emerald-600"
                       />
                       <button
                         type="submit"
-                        className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs cursor-pointer shrink-0"
+                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer shrink-0 transition-colors"
                       >
                         + Crear Catálogo
                       </button>
@@ -467,10 +467,10 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                   </div>
 
                   {/* Select Which Products Appear First */}
-                  <div className="bg-[#080d19] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
-                      <div className="flex items-center gap-2 font-bold text-sm text-white">
-                        <Sparkles className="w-4 h-4 text-amber-400" />
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                        <Sparkles className="w-4 h-4 text-amber-500" />
                         <span>Elegir Productos Destacados (Aparecen Primero)</span>
                       </div>
                       <input
@@ -478,7 +478,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                         placeholder="Buscar producto o catálogo..."
                         value={bannerFilterQuery}
                         onChange={(e) => setBannerFilterQuery(e.target.value)}
-                        className="bg-[#0b1324] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500 sm:w-56"
+                        className="bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 outline-none focus:border-emerald-600 sm:w-56"
                       />
                     </div>
 
@@ -488,13 +488,13 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                         .map(p => {
                           const isInBanner = Boolean(p.isFeaturedInBanner);
                           return (
-                            <div key={p.id} className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-colors ${isInBanner ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-[#0b1324] border-slate-800'}`}>
+                            <div key={p.id} className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-colors ${isInBanner ? 'bg-emerald-50 border-emerald-400' : 'bg-white border-slate-200'}`}>
                               <div className="flex items-center gap-2.5 overflow-hidden">
-                                <img src={p.images[0]} alt={p.name} className="w-11 h-11 rounded-lg object-cover shrink-0 border border-slate-800" />
+                                <img src={p.images[0]} alt={p.name} referrerPolicy="no-referrer" className="w-11 h-11 rounded-lg object-cover shrink-0 border border-slate-200" />
                                 <div className="overflow-hidden">
-                                  <div className="font-bold text-white truncate">{p.name}</div>
-                                  <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
-                                    <span className="text-emerald-400 font-mono font-bold">{formatPrice(p.price, currency)}</span>
+                                  <div className="font-bold text-slate-900 truncate">{p.name}</div>
+                                  <div className="text-[10px] text-slate-500 flex items-center gap-1.5">
+                                    <span className="text-emerald-700 font-mono tabular-nums font-bold">{formatPrice(p.price, currency)}</span>
                                     <span>·</span>
                                     <span className="capitalize">{categories.find(c => c.id === p.category)?.name || p.category}</span>
                                   </div>
@@ -505,8 +505,8 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                                 onClick={() => onToggleProductInBanner(p.id)}
                                 className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold shrink-0 cursor-pointer transition-all ${
                                   isInBanner
-                                    ? 'bg-emerald-500 text-slate-950'
-                                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                                 }`}
                               >
                                 {isInBanner ? '⭐ Destacado' : '+ Destacar'}
@@ -523,60 +523,60 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               {activeTab === 'resumen' && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="bg-[#080d19] border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-[11px] text-slate-400 uppercase font-semibold">Ventas Totales</div>
-                      <div className="text-xl font-mono font-black text-emerald-400 mt-1">
+                    <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                      <div className="text-[11px] text-slate-500 uppercase font-semibold">Ventas Totales</div>
+                      <div className="text-xl font-mono tabular-nums font-black text-emerald-700 mt-1">
                         {formatPrice(totalSales, currency)}
                       </div>
-                      <div className="text-[10px] text-emerald-400 flex items-center gap-1 mt-1 font-bold">
+                      <div className="text-[10px] text-emerald-700 flex items-center gap-1 mt-1 font-bold">
                         <TrendingUp className="w-3 h-3" /> +18.4% este mes
                       </div>
                     </div>
 
-                    <div className="bg-[#080d19] border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-[11px] text-slate-400 uppercase font-semibold">Total Pedidos</div>
-                      <div className="text-xl font-mono font-black text-white mt-1">
+                    <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                      <div className="text-[11px] text-slate-500 uppercase font-semibold">Total Pedidos</div>
+                      <div className="text-xl font-mono tabular-nums font-black text-slate-900 mt-1">
                         {orders.length + 84}
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-1">
+                      <div className="text-[10px] text-slate-500 mt-1">
                         {orders.length} pedidos en vivo
                       </div>
                     </div>
 
-                    <div className="bg-[#080d19] border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-[11px] text-slate-400 uppercase font-semibold">Clientes Registrados</div>
-                      <div className="text-xl font-mono font-black text-cyan-400 mt-1">
+                    <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                      <div className="text-[11px] text-slate-500 uppercase font-semibold">Clientes Registrados</div>
+                      <div className="text-xl font-mono tabular-nums font-black text-cyan-700 mt-1">
                         {registeredUsers.length}
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-1">
+                      <div className="text-[10px] text-slate-500 mt-1">
                         Cuentas activas
                       </div>
                     </div>
 
-                    <div className="bg-[#080d19] border border-slate-800 p-4 rounded-2xl">
-                      <div className="text-[11px] text-slate-400 uppercase font-semibold">Productos en Tienda</div>
-                      <div className="text-xl font-mono font-black text-amber-400 mt-1">
+                    <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                      <div className="text-[11px] text-slate-500 uppercase font-semibold">Productos en Tienda</div>
+                      <div className="text-xl font-mono tabular-nums font-black text-amber-700 mt-1">
                         {products.length}
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-1">
+                      <div className="text-[10px] text-slate-500 mt-1">
                         Inventario disponible
                       </div>
                     </div>
                   </div>
 
                   {/* Quick info note */}
-                  <div className="p-4 bg-[#080d19] border border-slate-800 rounded-2xl flex items-center justify-between">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3">
                     <div>
-                      <div className="font-bold text-white text-xs">WhatsApp de Recepción de Pedidos:</div>
-                      <div className="text-xs text-emerald-400 font-mono font-bold mt-0.5">+58 426 2139920</div>
+                      <div className="font-bold text-slate-900 text-xs">WhatsApp de Recepción de Pedidos:</div>
+                      <div className="text-xs text-emerald-700 font-mono font-bold mt-0.5">+58 426 2139920</div>
                     </div>
                     <a
                       href="https://wa.me/584262139920"
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                     >
-                      <MessageCircle className="w-3.5 h-3.5 fill-slate-950" />
+                      <MessageCircle className="w-3.5 h-3.5" />
                       <span>Abrir Mi WhatsApp</span>
                     </a>
                   </div>
@@ -587,44 +587,44 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               {activeTab === 'productos' && (
                 <div className="space-y-6">
                   {/* Form to Add New Product with FILE MANAGER */}
-                  <div className="bg-[#080d19] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
-                    <div className="flex items-center gap-2 font-bold text-sm text-white border-b border-slate-800 pb-2">
-                      <Plus className="w-4 h-4 text-emerald-400" />
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                    <div className="flex items-center gap-2 font-bold text-sm text-slate-900 border-b border-slate-200 pb-2">
+                      <Plus className="w-4 h-4 text-emerald-600" />
                       <span>Subir Nueva Mercancía al Catálogo (Gestor de Archivos)</span>
                     </div>
 
                     <form onSubmit={handleCreateProduct} className="space-y-3 text-xs">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="text-slate-400 block mb-1">Nombre del Producto *</label>
+                          <label className="text-slate-700 font-semibold block mb-1">Nombre del Producto *</label>
                           <input 
                             type="text" 
                             required
                             placeholder="Ej. Zapatillas Urban Pro Retro"
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500 transition-colors"
+                            className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 outline-none focus:border-emerald-600 transition-colors"
                           />
                         </div>
                         <div>
-                          <label className="text-slate-400 block mb-1">Subtítulo / Detalle</label>
+                          <label className="text-slate-700 font-semibold block mb-1">Subtítulo / Detalle</label>
                           <input 
                             type="text" 
                             placeholder="Ej. Edición especial 2026"
                             value={newSubtitle}
                             onChange={(e) => setNewSubtitle(e.target.value)}
-                            className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500 transition-colors"
+                            className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 outline-none focus:border-emerald-600 transition-colors"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div>
-                          <label className="text-slate-400 block mb-1">Catálogo / Categoría</label>
+                          <label className="text-slate-700 font-semibold block mb-1">Catálogo / Categoría</label>
                           <select
                             value={newCategory}
                             onChange={(e) => setNewCategory(e.target.value)}
-                            className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                            className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-slate-900 outline-none cursor-pointer"
                           >
                             {categories.filter(c => c.id !== 'all').map(cat => (
                               <option key={cat.id} value={cat.id}>
@@ -635,41 +635,41 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                           </select>
                         </div>
                         <div>
-                          <label className="text-slate-400 block mb-1">Precio Venta ($ USD) *</label>
+                          <label className="text-slate-700 font-semibold block mb-1">Precio Venta ($ USD) *</label>
                           <input 
                             type="number" 
                             step="0.01"
                             required
                             value={newPrice}
                             onChange={(e) => setNewPrice(e.target.value)}
-                            className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none font-mono"
+                            className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-slate-900 outline-none font-mono"
                           />
                         </div>
                         <div>
-                          <label className="text-slate-400 block mb-1">Precio Tachado ($ USD)</label>
+                          <label className="text-slate-700 font-semibold block mb-1">Precio Tachado ($ USD)</label>
                           <input 
                             type="number" 
                             step="0.01"
                             value={newOriginalPrice}
                             onChange={(e) => setNewOriginalPrice(e.target.value)}
-                            className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none font-mono"
+                            className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-slate-900 outline-none font-mono"
                           />
                         </div>
                         <div>
-                          <label className="text-slate-400 block mb-1">Stock Disponible</label>
+                          <label className="text-slate-700 font-semibold block mb-1">Stock Disponible</label>
                           <input 
                             type="number" 
                             value={newStock}
                             onChange={(e) => setNewStock(e.target.value)}
-                            className="w-full bg-[#0b1324] border border-slate-800 rounded-xl p-2.5 text-white outline-none font-mono"
+                            className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-slate-900 outline-none font-mono"
                           />
                         </div>
                       </div>
 
                       {/* Custom Category input if chosen */}
                       {newCategory === 'custom' && (
-                        <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                          <label className="text-slate-300 block mb-1 text-[11px] font-bold">
+                        <div className="p-3 rounded-xl bg-white border border-slate-200">
+                          <label className="text-slate-700 block mb-1 text-[11px] font-bold">
                             Nombre del Nuevo Catálogo / Categoría:
                           </label>
                           <input 
@@ -677,33 +677,33 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                             placeholder="Ej. Materiales de Construcción, Ferretería, Bloques, etc."
                             value={customCategoryName}
                             onChange={(e) => setCustomCategoryName(e.target.value)}
-                            className="w-full bg-[#0b1324] border border-emerald-500/50 rounded-xl p-2.5 text-white outline-none"
+                            className="w-full bg-slate-50 border border-emerald-500 rounded-xl p-2.5 text-slate-900 outline-none"
                           />
                         </div>
                       )}
 
                       {/* Featured Placement Checkbox */}
-                      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
-                        <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-white">
+                      <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1">
+                        <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-emerald-950">
                           <input 
                             type="checkbox" 
                             checked={showIn70Discount} 
                             onChange={(e) => setShowIn70Discount(e.target.checked)} 
-                            className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                            className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
                           />
                           <span className="flex items-center gap-1.5">
-                            <Sparkles className="w-4 h-4 text-emerald-400" />
+                            <Sparkles className="w-4 h-4 text-emerald-600" />
                             <span>Destacar este producto al inicio de la tienda</span>
                           </span>
                         </label>
-                        <p className="text-[11px] text-slate-400 pl-6">
+                        <p className="text-[11px] text-emerald-800 pl-6">
                           Al marcar esta casilla, el producto aparecerá entre los primeros lugares del catálogo principal.
                         </p>
                       </div>
 
                       {/* --- GESTOR DE ARCHIVOS DE IMÁGENES --- */}
-                      <div className="space-y-2 pt-2 border-t border-slate-800">
-                        <label className="text-slate-300 font-bold block">
+                      <div className="space-y-2 pt-2 border-t border-slate-200">
+                        <label className="text-slate-700 font-bold block">
                           📸 Fotos de la Mercancía (Sube directamente desde tu celular o archivos):
                         </label>
                         
@@ -720,15 +720,15 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                         {/* Drag and Drop / Click Button Box */}
                         <div 
                           onClick={() => fileInputRef.current?.click()}
-                          className="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-[#0b1324] hover:bg-[#0e1930] flex flex-col items-center justify-center gap-1.5"
+                          className="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-white hover:bg-emerald-50/40 flex flex-col items-center justify-center gap-1.5"
                         >
-                          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
                             <Upload className="w-5 h-5" />
                           </div>
-                          <div className="font-bold text-white text-xs">
+                          <div className="font-bold text-slate-900 text-xs">
                             {isUploadingFiles ? 'Cargando imágenes...' : 'Toca aquí para seleccionar fotos desde tu teléfono / computadora'}
                           </div>
-                          <div className="text-[10px] text-slate-400">
+                          <div className="text-[10px] text-slate-500">
                             Formatos soportados: JPG, PNG, WEBP (puedes subir varias fotos)
                           </div>
                         </div>
@@ -736,17 +736,17 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                         {/* Image Previews */}
                         {uploadedImages.length > 0 && (
                           <div className="space-y-1.5">
-                            <div className="text-[11px] text-slate-400 font-bold">
+                            <div className="text-[11px] text-slate-600 font-bold">
                               Fotos seleccionadas ({uploadedImages.length}):
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {uploadedImages.map((img, idx) => (
-                                <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-700 group">
+                                <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-300 group">
                                   <img src={img} alt="preview" className="w-full h-full object-cover" />
                                   <button
                                     type="button"
                                     onClick={() => handleRemoveImage(idx)}
-                                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs opacity-90 hover:opacity-100"
+                                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs opacity-90 hover:opacity-100 cursor-pointer"
                                   >
                                     ✕
                                   </button>
@@ -763,12 +763,12 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                             placeholder="O pega el enlace de una foto en internet (URL)..."
                             value={externalImageUrl}
                             onChange={(e) => setExternalImageUrl(e.target.value)}
-                            className="flex-1 bg-[#0b1324] border border-slate-800 rounded-xl px-3 py-2 text-white outline-none text-[11px] font-mono"
+                            className="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 outline-none text-[11px] font-mono"
                           />
                           <button
                             type="button"
                             onClick={handleAddExternalUrl}
-                            className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs cursor-pointer"
+                            className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs cursor-pointer transition-colors"
                           >
                             Agregar URL
                           </button>
@@ -777,7 +777,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
 
                       <button
                         type="submit"
-                        className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1.5"
+                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1.5"
                       >
                         <Package className="w-4 h-4 stroke-[2.5]" />
                         <span>Publicar Mercancía en la Tienda</span>
@@ -787,17 +787,17 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
 
                   {/* List of existing products */}
                   <div className="space-y-2">
-                    <div className="font-bold text-xs text-white">Catálogo Actual ({products.length} productos):</div>
+                    <div className="font-bold text-xs text-slate-900">Catálogo Actual ({products.length} productos):</div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       {products.map((p) => {
                         const isInBanner = Boolean(p.isFeaturedInBanner);
                         return (
-                          <div key={p.id} className="p-3 bg-[#080d19] border border-slate-800 rounded-xl flex items-center justify-between gap-2">
+                          <div key={p.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2.5 overflow-hidden">
-                              <img src={p.images[0]} alt={p.name} className="w-12 h-12 object-cover rounded-lg shrink-0 border border-slate-800" />
+                              <img src={p.images[0]} alt={p.name} referrerPolicy="no-referrer" className="w-12 h-12 object-cover rounded-lg shrink-0 border border-slate-200 bg-white" />
                               <div className="overflow-hidden">
-                                <div className="font-bold text-white truncate">{p.name}</div>
-                                <div className="text-[11px] text-emerald-400 font-mono font-bold">{formatPrice(p.price, currency)}</div>
+                                <div className="font-bold text-slate-900 truncate">{p.name}</div>
+                                <div className="text-[11px] text-emerald-700 font-mono tabular-nums font-bold">{formatPrice(p.price, currency)}</div>
                                 <div className="text-[10px] text-slate-500 capitalize">
                                   {categories.find(c => c.id === p.category)?.name || p.category} · Stock: {p.stock}
                                 </div>
@@ -809,8 +809,8 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                                 onClick={() => onToggleProductInBanner(p.id)}
                                 className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all ${
                                   isInBanner
-                                    ? 'bg-emerald-500 text-slate-950'
-                                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700'
                                 }`}
                                 title="Destacar producto al principio de la tienda"
                               >
@@ -820,7 +820,7 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                                 onClick={() => {
                                   if (confirm(`¿Eliminar ${p.name} del catálogo?`)) onDeleteProduct(p.id);
                                 }}
-                                className="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                                className="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-600 border border-rose-200 text-rose-600 hover:text-white flex items-center justify-center cursor-pointer transition-colors shrink-0"
                                 title="Eliminar producto"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -837,43 +837,43 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               {/* TAB 3: PEDIDOS */}
               {activeTab === 'pedidos' && (
                 <div className="space-y-3">
-                  <div className="font-bold text-xs text-white">Pedidos Registrados ({orders.length}):</div>
+                  <div className="font-bold text-xs text-slate-900">Pedidos Registrados ({orders.length}):</div>
                   {orders.length === 0 ? (
-                    <div className="text-center py-10 bg-[#080d19] border border-slate-800 rounded-2xl text-slate-400 text-xs">
+                    <div className="text-center py-10 bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 text-xs">
                       No hay pedidos nuevos por el momento. Cuando un cliente complete su compra, aparecerá aquí.
                     </div>
                   ) : (
                     <div className="space-y-2 text-xs">
                       {orders.map((order) => (
-                        <div key={order.id} className="p-4 bg-[#080d19] border border-slate-800 rounded-2xl space-y-2">
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+                        <div key={order.id} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-white">{order.id}</span>
-                              <span className="text-[10px] text-slate-400">{order.createdAt}</span>
+                              <span className="font-mono font-bold text-slate-900">{order.id}</span>
+                              <span className="text-[10px] text-slate-500">{order.createdAt}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <select
                                 value={order.status}
                                 onChange={(e) => onUpdateOrderStatus(order.id, e.target.value as Order['status'])}
                                 className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase outline-none cursor-pointer border ${
-                                  order.status === 'entregado' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
-                                  order.status === 'enviado' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' :
-                                  order.status === 'procesando' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
-                                  'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                                  order.status === 'entregado' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                                  order.status === 'enviado' ? 'bg-blue-100 text-blue-800 border-blue-300' :
+                                  order.status === 'procesando' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                                  'bg-rose-100 text-rose-800 border-rose-300'
                                 }`}
                               >
-                                <option value="pendiente" className="bg-slate-900">Pendiente</option>
-                                <option value="procesando" className="bg-slate-900">Procesando</option>
-                                <option value="enviado" className="bg-slate-900">Enviado</option>
-                                <option value="entregado" className="bg-slate-900">Entregado</option>
+                                <option value="pendiente" className="bg-white text-slate-900">Pendiente</option>
+                                <option value="procesando" className="bg-white text-slate-900">Procesando</option>
+                                <option value="enviado" className="bg-white text-slate-900">Enviado</option>
+                                <option value="entregado" className="bg-white text-slate-900">Entregado</option>
                               </select>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700">
                             <div>
                               <span className="text-slate-500">Comprador: </span>
-                              <strong className="text-white">{order.customerName}</strong> ({order.customerPhone})
+                              <strong className="text-slate-900">{order.customerName}</strong> ({order.customerPhone})
                             </div>
                             <div>
                               <span className="text-slate-500">Dirección: </span>
@@ -881,17 +881,17 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                             </div>
                           </div>
 
-                          <div className="pt-1 text-[11px] text-slate-400">
+                          <div className="pt-1 text-[11px] text-slate-600">
                             <span>Artículos: </span>
                             {order.items.map((it, i) => (
-                              <span key={i} className="text-white font-medium">
+                              <span key={i} className="text-slate-900 font-medium">
                                 {it.quantity}x {it.product.name} ({it.selectedColor || ''} {it.selectedSize || ''}){i < order.items.length - 1 ? ', ' : ''}
                               </span>
                             ))}
                           </div>
 
-                          <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-                            <span className="font-mono text-emerald-400 font-bold text-sm">
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                            <span className="font-mono tabular-nums text-emerald-700 font-bold text-sm">
                               Total: {formatPrice(order.total, currency)} ({order.paymentMethod})
                             </span>
                             
@@ -900,9 +900,9 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                               href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(order.customerName)},%20te%20escribo%20de%20ZetaMall%20sobre%20tu%20pedido%20%23${order.id}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                             >
-                              <MessageCircle className="w-3.5 h-3.5 fill-slate-950" />
+                              <MessageCircle className="w-3.5 h-3.5" />
                               <span>Escribir al Cliente</span>
                             </a>
                           </div>
@@ -917,38 +917,38 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
               {activeTab === 'clientes' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="font-bold text-xs text-white">
+                    <div className="font-bold text-xs text-slate-900">
                       Lista de Clientes Registrados ({registeredUsers.length}):
                     </div>
                   </div>
 
                   {registeredUsers.length === 0 ? (
-                    <div className="text-center py-10 bg-[#080d19] border border-slate-800 rounded-2xl text-slate-400 text-xs">
+                    <div className="text-center py-10 bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 text-xs">
                       No hay clientes registrados aún. En cuanto los clientes creen su cuenta, aparecerán aquí.
                     </div>
                   ) : (
                     <div className="space-y-2 text-xs">
                       {registeredUsers.map((user) => (
-                        <div key={user.id} className="p-3.5 bg-[#080d19] border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div key={user.id} className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-white text-sm">{user.name}</span>
-                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${user.role === 'admin' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                              <span className="font-bold text-slate-900 text-sm">{user.name}</span>
+                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${user.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
                                 {user.role === 'admin' ? 'Super Admin' : 'Cliente'}
                               </span>
                             </div>
-                            <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
+                            <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-600">
                               <span className="flex items-center gap-1">
-                                <Mail className="w-3 h-3 text-slate-500" />
+                                <Mail className="w-3 h-3 text-slate-400" />
                                 {user.email}
                               </span>
                               <span className="flex items-center gap-1">
-                                <Phone className="w-3 h-3 text-slate-500" />
+                                <Phone className="w-3 h-3 text-slate-400" />
                                 {user.phone}
                               </span>
                               {user.city && (
                                 <span className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3 text-slate-500" />
+                                  <MapPin className="w-3 h-3 text-slate-400" />
                                   {user.city}
                                 </span>
                               )}
@@ -964,9 +964,9 @@ export const ZetaAdminDashboard: React.FC<ZetaAdminDashboardProps> = ({
                               href={`https://wa.me/${user.phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(user.name)},%20te%20saludamos%20de%20ZetaMall.`}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                             >
-                              <MessageCircle className="w-3.5 h-3.5 fill-slate-950" />
+                              <MessageCircle className="w-3.5 h-3.5" />
                               <span>WhatsApp</span>
                             </a>
                           </div>

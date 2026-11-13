@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "ZetaTrade",
-  "short_name": "ZetaTrade",
-  "description": "ZetaTrade - Plataforma profesional de trading y opciones en vivo para Oro, Forex y Cripto",
+  "name": "ZetaMall",
+  "short_name": "ZetaMall",
+  "description": "ZetaMall - Tienda Online Oficial con envíos rápidos y atención directa por WhatsApp",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#070c17",
-  "theme_color": "#090f1e",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -23,8 +23,8 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/zetatrade_logo.png",
-      "sizes": "1024x1024",
+      "src": "/zetamall_logo.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }

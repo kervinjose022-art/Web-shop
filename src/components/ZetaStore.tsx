@@ -546,6 +546,15 @@ export const ZetaStore: React.FC = () => {
         <p className="text-[11px] text-slate-500 max-w-md mx-auto">
           Atención directa vía WhatsApp al 0426-2139920 y despachos seguros a todo el país.
         </p>
+        <div className="pt-1">
+          <a
+            href="https://web-shop-mocha.vercel.app/ZetaMall.apk"
+            download="ZetaMall.apk"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-800 hover:text-emerald-700 font-bold text-xs transition-colors shadow-xs"
+          >
+            <span>📱 Descargar App Android (ZetaMall.apk)</span>
+          </a>
+        </div>
         <div className="text-[11px] text-slate-400">
           © 2026 ZetaMall. Todos los derechos reservados.
         </div>

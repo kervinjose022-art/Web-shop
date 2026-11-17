@@ -24,7 +24,8 @@ import {
   Wrench,
   Car,
   Package,
-  Layers
+  Layers,
+  Smartphone
 } from 'lucide-react';
 import { Currency, CustomerUser, StoreCategory } from '../types/store';
 import { STORE_CATEGORIES } from '../data/initialProducts';
@@ -161,6 +162,17 @@ export const ZetaHeader: React.FC<ZetaHeaderProps> = ({
               B2B
             </span>
           </button>
+
+          {/* Direct Public APK Download */}
+          <a
+            href="https://web-shop-mocha.vercel.app/ZetaMall.apk"
+            download="ZetaMall.apk"
+            title="Descargar App Oficial ZetaMall (.apk)"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 hover:text-emerald-800 text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="text-[11px] font-extrabold">APK</span>
+          </a>
 
           {/* Currency Switcher Dropdown */}
           <div className="relative">

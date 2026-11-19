@@ -1,29 +1,28 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import firebaseConfig from '../firebase-applet-config.json';
 
-// Resolver la firma de TypeScript para import.meta.env
-const metaEnv = (import.meta as any).env || {};
-
-// Configuración provista en tu pestaña de Firebase SDK Config en tu video
-const firebaseConfig = {
-  apiKey: localStorage.getItem('tapp_firebase_api_key_override') || metaEnv.VITE_FIREBASE_API_KEY || "AIzaSyBudWAdEd0EwL-837L-mE7I-7Fm_B2n4I8",
-  authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || "tappmusic-e9406.firebaseapp.com",
-  projectId: metaEnv.VITE_FIREBASE_PROJECT_ID || "tappmusic-e9406",
-  storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || "tappmusic-e9406.appspot.com",
-  messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || "1002591783990",
-  appId: metaEnv.VITE_FIREBASE_APP_ID || "1:1002591783990:web:cd4725537c475f8df15c97"
-};
-
-// Inicializar la aplicación de Firebase
 const app = initializeApp(firebaseConfig);
 
-// Instancias de servicios exportados
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
-// Funciones utilitarias exigidas para App.tsx
+export const ADMIN_EMAIL = 'kervinjose022@gmail.com';
+
+export function isFirebaseAdmin(email?: string | null): boolean {
+  return Boolean(email && email.toLowerCase() === ADMIN_EMAIL);
+}
+
+export async function signInWithGoogleAccount() {
+  return signInWithPopup(auth, googleProvider);
+}
+
+export async function signOutFirebaseAccount() {
+  return signOut(auth);
+}
+
 export function getFirebaseConfig() {
   return firebaseConfig;
 }
@@ -34,7 +33,18 @@ export function updateFirebaseApiKey(newKey: string) {
   window.location.reload();
 }
 
-// ---- FIRESTORE DETECTOR DE ERRORES EXIGIDO ----
+// Startup Firestore connection check
+async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, 'test', 'connection'));
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.error('Please check your Firebase configuration.');
+    }
+  }
+}
+testConnection();
+
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
@@ -70,15 +80,16 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
       emailVerified: auth.currentUser?.emailVerified || null,
       isAnonymous: auth.currentUser?.isAnonymous || null,
       tenantId: auth.currentUser?.tenantId || null,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
-        providerId: provider.providerId,
-        email: provider.email,
-      })) || []
+      providerInfo:
+        auth.currentUser?.providerData?.map((provider) => ({
+          providerId: provider.providerId,
+          email: provider.email,
+        })) || [],
     },
     operationType,
-    path
+    path,
   };
-  console.error('Firestore Error Info: ', JSON.stringify(errInfo));
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }
 

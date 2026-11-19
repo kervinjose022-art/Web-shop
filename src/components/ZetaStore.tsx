@@ -25,6 +25,9 @@ import { ZetaAdminDashboard, AdminTab } from './ZetaAdminDashboard';
 import { ZetaWishlistModal } from './ZetaWishlistModal';
 import { ZetaAuthModal } from './ZetaAuthModal';
 import { formatPrice } from '../utils/storeUtils';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { auth, db, handleFirestoreError, isFirebaseAdmin, OperationType, signOutFirebaseAccount } from '../firebase';
 
 const INITIAL_CUSTOMERS: CustomerUser[] = [
   {
@@ -271,7 +274,79 @@ export const ZetaStore: React.FC = () => {
     setOrders(prev => [newOrder, ...prev]);
     setCartItems([]);
     setAppliedCoupon(null);
+    if (auth.currentUser) {
+      const cleanId = newOrder.id.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 128);
+      setDoc(doc(db, 'zetamall_orders', cleanId), {
+        ...newOrder,
+        id: cleanId,
+        userId: auth.currentUser.uid,
+      }).catch((err) => {
+        try {
+          handleFirestoreError(err, OperationType.CREATE, `zetamall_orders/${cleanId}`);
+        } catch {}
+      });
+    }
   };
+
+  // Real-time public catalog sync from Firestore (zetamall_products)
+  useEffect(() => {
+    const unsubProducts = onSnapshot(
+      collection(db, 'zetamall_products'),
+      (snap) => {
+        if (!snap.empty) {
+          const cloudProducts = snap.docs.map((d) => d.data() as Product);
+          setProducts(cloudProducts);
+        }
+      },
+      (error) => {
+        try {
+          handleFirestoreError(error, OperationType.LIST, 'zetamall_products');
+        } catch {}
+      }
+    );
+
+    let unsubOrders: (() => void) | null = null;
+    let unsubCustomers: (() => void) | null = null;
+
+    const unsubAuth = onAuthStateChanged(auth, (fbUser) => {
+      if (unsubOrders) { unsubOrders(); unsubOrders = null; }
+      if (unsubCustomers) { unsubCustomers(); unsubCustomers = null; }
+      if (!fbUser) return;
+
+      const admin = isFirebaseAdmin(fbUser.email);
+      if (admin) {
+        unsubOrders = onSnapshot(
+          collection(db, 'zetamall_orders'),
+          (snap) => {
+            if (!snap.empty) {
+              setOrders(snap.docs.map((d) => d.data() as Order));
+            }
+          },
+          (error) => {
+            try { handleFirestoreError(error, OperationType.LIST, 'zetamall_orders'); } catch {}
+          }
+        );
+        unsubCustomers = onSnapshot(
+          collection(db, 'zetamall_customers'),
+          (snap) => {
+            if (!snap.empty) {
+              setRegisteredUsers(snap.docs.map((d) => d.data() as CustomerUser));
+            }
+          },
+          (error) => {
+            try { handleFirestoreError(error, OperationType.LIST, 'zetamall_customers'); } catch {}
+          }
+        );
+      }
+    });
+
+    return () => {
+      unsubProducts();
+      unsubAuth();
+      if (unsubOrders) unsubOrders();
+      if (unsubCustomers) unsubCustomers();
+    };
+  }, []);
 
   // Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
@@ -604,20 +679,41 @@ export const ZetaStore: React.FC = () => {
         bannerConfig={bannerConfig}
         currency={currency}
         initialTab={adminInitialTab}
-        onAddProduct={(p) => setProducts(prev => [p, ...prev])}
-        onDeleteProduct={(id) => setProducts(prev => prev.filter(p => p.id !== id))}
+        onAddProduct={(p) => {
+          setProducts(prev => [p, ...prev]);
+          if (auth.currentUser && isFirebaseAdmin(auth.currentUser.email)) {
+            const cleanId = p.id.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 128);
+            setDoc(doc(db, 'zetamall_products', cleanId), { ...p, id: cleanId }).catch(() => {});
+          }
+        }}
+        onDeleteProduct={(id) => {
+          setProducts(prev => prev.filter(p => p.id !== id));
+          if (auth.currentUser && isFirebaseAdmin(auth.currentUser.email)) {
+            deleteDoc(doc(db, 'zetamall_products', id)).catch(() => {});
+          }
+        }}
         onToggleProductInBanner={(productId) => {
-          setProducts(prev => prev.map(p => 
-            p.id === productId 
-              ? { ...p, isFeaturedInBanner: !p.isFeaturedInBanner, isFlashDeal: !p.isFeaturedInBanner || p.isFlashDeal } 
-              : p
-          ));
+          setProducts(prev => prev.map(p => {
+            if (p.id !== productId) return p;
+            const updated = { ...p, isFeaturedInBanner: !p.isFeaturedInBanner, isFlashDeal: !p.isFeaturedInBanner || p.isFlashDeal };
+            if (auth.currentUser && isFirebaseAdmin(auth.currentUser.email)) {
+              setDoc(doc(db, 'zetamall_products', updated.id), updated, { merge: true }).catch(() => {});
+            }
+            return updated;
+          }));
         }}
         onUpdateBannerConfig={setBannerConfig}
         onAddCategory={(cat) => setCategories(prev => [...prev, cat])}
         onDeleteCategory={(catId) => setCategories(prev => prev.filter(c => c.id !== catId))}
         onUpdateOrderStatus={(id, status) => {
-          setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+          setOrders(prev => prev.map(o => {
+            if (o.id !== id) return o;
+            const updated = { ...o, status };
+            if (auth.currentUser && isFirebaseAdmin(auth.currentUser.email)) {
+              setDoc(doc(db, 'zetamall_orders', id), updated, { merge: true }).catch(() => {});
+            }
+            return updated;
+          }));
         }}
       />
 
@@ -643,6 +739,7 @@ export const ZetaStore: React.FC = () => {
         }}
         onLogout={() => {
           setCurrentUser(null);
+          void signOutFirebaseAccount().catch(() => {});
           try {
             localStorage.removeItem('zetamall_current_user');
           } catch {}
@@ -650,6 +747,19 @@ export const ZetaStore: React.FC = () => {
         onRegister={(newUser) => {
           setRegisteredUsers(prev => [newUser, ...prev]);
           setCurrentUser(newUser);
+          if (auth.currentUser) {
+            const cleanId = auth.currentUser.uid;
+            setDoc(doc(db, 'zetamall_customers', cleanId), {
+              id: cleanId,
+              uid: cleanId,
+              name: newUser.name.slice(0, 120),
+              email: newUser.email.slice(0, 160),
+              phone: (newUser.phone || '').slice(0, 40),
+              address: (newUser.address || '').slice(0, 300),
+              role: newUser.role === 'admin' ? 'admin' : 'customer',
+              createdAt: (newUser.registeredAt || new Date().toLocaleDateString('es-ES')).slice(0, 64),
+            }, { merge: true }).catch(() => {});
+          }
           try {
             localStorage.setItem('zetamall_current_user', JSON.stringify(newUser));
           } catch {}

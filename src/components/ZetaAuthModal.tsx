@@ -14,6 +14,7 @@ import {
   UserPlus
 } from 'lucide-react';
 import { CustomerUser } from '../types/store';
+import { isFirebaseAdmin, signInWithGoogleAccount } from '../firebase';
 
 interface ZetaAuthModalProps {
   isOpen: boolean;
@@ -158,6 +159,44 @@ export const ZetaAuthModal: React.FC<ZetaAuthModalProps> = ({
             <X className="w-4 h-4" />
           </button>
         </div>
+
+        {!currentUser && (
+          <div className="px-5 pt-4">
+            <button
+              type="button"
+              onClick={async () => {
+                setErrorMsg('');
+                try {
+                  const res = await signInWithGoogleAccount();
+                  const fbUser = res.user;
+                  const cleanEmail = (fbUser.email || '').toLowerCase();
+                  const isAdm = isFirebaseAdmin(cleanEmail);
+                  const googleCustomer: CustomerUser = {
+                    id: fbUser.uid,
+                    name: fbUser.displayName || cleanEmail.split('@')[0] || 'Cliente',
+                    email: cleanEmail,
+                    phone: isAdm ? '04262139920' : '',
+                    registeredAt: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
+                    role: isAdm ? 'admin' : 'customer',
+                  };
+                  onRegister(googleCustomer);
+                  onLogin(googleCustomer);
+                  setSuccessMsg(isAdm ? '¡Conectado como Admin con Firebase!' : '¡Conectado con Google!');
+                  setTimeout(() => {
+                    onClose();
+                    if (isAdm && onOpenAdminDirectly) onOpenAdminDirectly();
+                  }, 600);
+                } catch {
+                  setErrorMsg('No se pudo conectar con Google. Intenta de nuevo.');
+                }
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
+            >
+              <span className="font-black text-sm text-emerald-400">G</span>
+              <span>Continuar con Google (Nube Firebase)</span>
+            </button>
+          </div>
+        )}
 
         {/* Body Content */}
         <div className="p-5 sm:p-6 space-y-4">

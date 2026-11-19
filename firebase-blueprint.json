@@ -1,105 +1,92 @@
 {
   "entities": {
-    "User": {
-      "title": "User",
-      "description": "User account details, VIP membership access, current coin balance, and daily tasks watching progress.",
+    "ZetaTradeUser": {
+      "title": "ZetaTradeUser",
+      "description": "Registered trader account in ZetaTrade broker.",
       "type": "object",
       "properties": {
-        "email": {
-          "type": "string",
-          "description": "The email address of the user."
-        },
-        "isAdmin": {
-          "type": "boolean",
-          "description": "Flag indicating if the user has database administrator access."
-        },
-        "balance": {
-          "type": "number",
-          "description": "Available coin balance of the user."
-        },
-        "currentVIP": {
-          "type": "string",
-          "description": "The active VIP level identifier of the user (e.g. 'plata', 'oro', 'rubi')."
-        },
-        "tasksCompletedToday": {
-          "type": "number",
-          "description": "Number of videos watched today by the user."
-        },
-        "lastTaskDate": {
-          "type": "string",
-          "description": "The date when the user completed their last task (YYYY-MM-DD)."
-        }
+        "id": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 120 },
+        "email": { "type": "string", "format": "email", "maxLength": 160 },
+        "realBalance": { "type": "number" },
+        "demoBalance": { "type": "number" },
+        "totalProfit": { "type": "number" },
+        "totalLoss": { "type": "number" },
+        "role": { "type": "string", "enum": ["user", "vip", "admin"] },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "tradesCount": { "type": "number" },
+        "wonTradesCount": { "type": "number" }
       },
-      "required": ["email", "isAdmin"]
+      "required": ["id", "name", "email", "realBalance", "demoBalance", "role", "status", "createdAt"]
     },
-    "DepositRequest": {
-      "title": "DepositRequest",
-      "description": "A booking request submitted by a user to purchase/register a VIP tier with proof of payment.",
+    "ZetaMallProduct": {
+      "title": "ZetaMallProduct",
+      "description": "Product listed in the ZetaMall online store catalog.",
       "type": "object",
       "properties": {
-        "userId": {
-          "type": "string"
-        },
-        "username": {
-          "type": "string"
-        },
-        "userEmail": {
-          "type": "string"
-        },
-        "tierId": {
-          "type": "string"
-        },
-        "tierName": {
-          "type": "string"
-        },
-        "price": {
-          "type": "number"
-        },
-        "status": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string"
-        },
-        "referenceId": {
-          "type": "string"
-        }
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 180 },
+        "subtitle": { "type": "string", "maxLength": 240 },
+        "category": { "type": "string", "maxLength": 80 },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "description": { "type": "string", "maxLength": 2000 }
       },
-      "required": ["userId", "username", "tierId", "price", "status", "createdAt"]
+      "required": ["id", "name", "category", "price"]
     },
-    "Configuration": {
-      "title": "Configuration",
-      "description": "System variables for conversion rate, withdrawal fees, allowed calendar dates, and active VIP membership levels.",
+    "ZetaMallOrder": {
+      "title": "ZetaMallOrder",
+      "description": "Customer order placed in ZetaMall.",
       "type": "object",
       "properties": {
-        "conversionRate": {
-          "type": "number",
-          "description": "Multiplication factor representing how many Coins match 1 USD (defaults to 36.7)."
-        },
-        "viptiers": {
-          "type": "array",
-          "description": "All configured active and inactive VIP memberships offered by tappmusic."
-        },
-        "withdrawalConfig": {
-          "type": "object",
-          "description": "Rules determining withdrawal commission fees and day restrictions."
-        }
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "customerPhone": { "type": "string", "maxLength": 40 },
+        "customerEmail": { "type": "string", "maxLength": 160 },
+        "shippingAddress": { "type": "string", "maxLength": 300 },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pendiente", "pagado", "enviado", "entregado", "cancelado"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
       },
-      "required": ["conversionRate", "viptiers", "withdrawalConfig"]
+      "required": ["id", "userId", "customerName", "customerPhone", "total", "status", "createdAt"]
+    },
+    "ZetaMallCustomer": {
+      "title": "ZetaMallCustomer",
+      "description": "Registered customer profile in ZetaMall.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 120 },
+        "email": { "type": "string", "format": "email", "maxLength": 160 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "address": { "type": "string", "maxLength": 300 },
+        "role": { "type": "string", "enum": ["customer", "admin"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "name", "email", "role", "createdAt"]
     }
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": "User",
-      "description": "User profiles which hold the admin credential, balance, and VIP levels to authorise console operations."
+    "/zetatrade_users/{userId}": {
+      "schema": { "$ref": "#/entities/ZetaTradeUser" },
+      "description": "ZetaTrade registered trader accounts synced across devices."
     },
-    "/deposit_requests/{requestId}": {
-      "schema": "DepositRequest",
-      "description": "Financial deposit and VIP purchase requests submitted by users waiting for admin approval."
+    "/zetamall_products/{productId}": {
+      "schema": { "$ref": "#/entities/ZetaMallProduct" },
+      "description": "ZetaMall public catalog products managed by admin."
     },
-    "/configurations/{configId}": {
-      "schema": "Configuration",
-      "description": "Consolidated system state holding the current active rates, withdrawal configs, and tiers list."
+    "/zetamall_orders/{orderId}": {
+      "schema": { "$ref": "#/entities/ZetaMallOrder" },
+      "description": "ZetaMall customer orders."
+    },
+    "/zetamall_customers/{customerId}": {
+      "schema": { "$ref": "#/entities/ZetaMallCustomer" },
+      "description": "ZetaMall registered customers."
     }
   }
 }

@@ -1,67 +1,115 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- GLOBAL SAFETY NET: DEFAULT DENY ALL ---
+
+    // --- DEFAULT DENY ALL ---
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // --- REUSABLE SECURITY UTILITIES ---
+    // --- SECURITY HELPERS ---
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Verify whether the signed-in user is an authorized admin in the 'users' collection
     function isAdmin() {
-      return isSignedIn() 
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      return isSignedIn()
+        && request.auth.token.email == 'kervinjose022@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\\\-]+$');
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    // --- COLLECTION 1: USERS PRIVILEGES ---
-    match /users/{userId} {
-      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow list: if isSignedIn() && isAdmin();
-      
-      // Allow creation/modification with optional progress tracking attributes safely
-      allow create: if isSignedIn() && (request.auth.uid == userId)
-        && (request.resource.data.isAdmin == false || isAdmin());
-        
-      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin())
-        // Block privilege escalation: normal users cannot change their own isAdmin status
-        && (request.resource.data.isAdmin == resource.data.isAdmin || isAdmin());
-
-      allow delete: if isSignedIn() && isAdmin();
+    function isValidZetaTradeUser(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'realBalance', 'demoBalance', 'role', 'status', 'createdAt'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.realBalance is number && data.realBalance >= 0
+        && data.demoBalance is number && data.demoBalance >= 0
+        && data.role in ['user', 'vip', 'admin']
+        && data.status in ['active', 'suspended']
+        && data.createdAt is string && data.createdAt.size() <= 64;
     }
 
-    // --- COLLECTION 4: DEPOSIT & MEMBERSHIP PURCHASES ---
-    match /deposit_requests/{requestId} {
-      allow get: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
-      allow list: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow delete: if isSignedIn() && isAdmin();
+    function isValidZetaMallProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'category', 'price'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 180
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 80
+        && data.price is number && data.price >= 0;
     }
 
-    // --- COLLECTION 2: CONFIGURATIONS ---
-    match /configurations/{configId} {
-      allow get: if true; // Configurations are public read so clients (like tapmusic web) can grab current rates
-      allow list: if isSignedIn();
-
-      allow create, update, delete: if isSignedIn() && isAdmin() && isValidId(configId);
+    function isValidZetaMallOrder(data) {
+      return data.keys().hasAll(['id', 'userId', 'customerName', 'customerPhone', 'total', 'status', 'createdAt'])
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 120
+        && data.customerPhone is string && data.customerPhone.size() >= 1 && data.customerPhone.size() <= 40
+        && data.total is number && data.total >= 0
+        && data.status in ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado']
+        && data.createdAt is string && data.createdAt.size() <= 64;
     }
 
-    // --- COLLECTION 3: CONFIG DIRECT PATH ---
-    match /config/{configId} {
-      allow get: if true;
-      allow list: if isSignedIn();
+    function isValidZetaMallCustomer(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'role', 'createdAt'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.role in ['customer', 'admin']
+        && data.createdAt is string && data.createdAt.size() <= 64;
+    }
 
-      allow create, update, delete: if isSignedIn() && isAdmin() && isValidId(configId);
+    // --- ZETATRADE USERS ---
+    match /zetatrade_users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(userId)
+        && isValidZetaTradeUser(request.resource.data)
+        && ((isOwner(userId) && request.resource.data.role == 'user' && request.resource.data.status == 'active') || isAdmin());
+      allow update: if isValidId(userId)
+        && isValidZetaTradeUser(request.resource.data)
+        && (isAdmin() || (isOwner(userId) && request.resource.data.role == resource.data.role && request.resource.data.status == resource.data.status));
+      allow delete: if isValidId(userId) && isAdmin();
+    }
+
+    // --- ZETAMALL PRODUCTS (Public Catalog Read, Admin Write) ---
+    match /zetamall_products/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+      allow create, update: if isValidId(productId) && isAdmin() && isValidZetaMallProduct(request.resource.data);
+      allow delete: if isValidId(productId) && isAdmin();
+    }
+
+    // --- ZETAMALL ORDERS ---
+    match /zetamall_orders/{orderId} {
+      allow get: if isValidId(orderId) && isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isValidId(orderId)
+        && isSignedIn()
+        && isValidZetaMallOrder(request.resource.data)
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if isValidId(orderId) && isAdmin() && isValidZetaMallOrder(request.resource.data);
+      allow delete: if isValidId(orderId) && isAdmin();
+    }
+
+    // --- ZETAMALL CUSTOMERS ---
+    match /zetamall_customers/{customerId} {
+      allow get: if isValidId(customerId) && (isOwner(customerId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(customerId)
+        && isValidZetaMallCustomer(request.resource.data)
+        && ((isOwner(customerId) && request.resource.data.role == 'customer') || isAdmin());
+      allow update: if isValidId(customerId)
+        && isValidZetaMallCustomer(request.resource.data)
+        && (isAdmin() || (isOwner(customerId) && request.resource.data.role == resource.data.role));
+      allow delete: if isValidId(customerId) && isAdmin();
     }
   }
 }
